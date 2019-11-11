@@ -27,8 +27,24 @@ object Intake{
     @JvmStatic fun unfold() {
         power(-1.0)
         Handler(Looper.getMainLooper()).postDelayed({
-            stopIntake()
-        }, 1500)
+            power(1.0)
+            Handler(Looper.getMainLooper()).postDelayed({
+                stopIntake()
+            }, 500)
+        }, 1000)
+
+
+    }
+
+    @JvmStatic fun newUnfold(){
+        power(-1.0)
+        Thread.sleep(500)
+        power(0.0)
+        Thread.sleep(500)
+        power(1.0)
+        Thread.sleep(500)
+        power(0.0)
+
     }
 
     @JvmStatic fun powerAsync(power: Double, time: Long) {

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Servo
-import kotlinx.coroutines.delay
 import org.firstinspires.ftc.teamcode.lib.Extensions.fuzzyEquals
 
 
@@ -15,7 +14,7 @@ object Grabber{
 
     const val start = 0.0
     const val end = 0.6
-    private const val verticalOffset = .45 //was.45
+    const val verticalOffset = .45 //was.45
     private const val horizontalOffset = .77 //was .13
     private const val collectionOffset = -.235 //was -.25
     private const val clampPosition = .23

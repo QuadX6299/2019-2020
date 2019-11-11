@@ -62,7 +62,13 @@ public class BlueAuto extends LinearOpMode {
 
 
         waitForStart();
-        Intake.unfold();
+        Intake.power(-1.0);
+        Thread.sleep(500);
+        Intake.power(0.0);
+        Thread.sleep(500);
+        Intake.power(1.0);
+        Thread.sleep(500);
+        Intake.power(0.0);
         t.reset();
 
 
@@ -86,20 +92,24 @@ public class BlueAuto extends LinearOpMode {
             DriveTrain.setPower(powers.get(0), powers.get(1));
         }
 
-        Bhorn.toggle();
+        Bhorn.down();
         Thread.sleep(600);
         DriveTrain.setPower(-.25,-.25);
-        Thread.sleep(900);
+        if(skyStonePosition.equals("R")) {
+            Thread.sleep(850);
+        } else {
+            Thread.sleep(750);
+        }
         DriveTrain.setPower(.2, .2);
-        Intake.power(1.0);
+        Intake.powerAsync(1.0, 1000);
         Thread.sleep(500);
-        Bhorn.toggle();
+        Bhorn.up();
         DriveTrain.stopMotors();
         Thread.sleep(1000);
         Intake.stopIntake();
         //turn to face towards the build plate
-        DriveTrain.turnPID(.27, false, ((Math.PI)/2.0));
-        Intake.powerAsync(-1.0, 200);
+        DriveTrain.turnPID(.27, false, (( Math.PI)/2.0));
+        Intake.powerAsync(-0.75, 300);
 
 
         //get path to get to foundation
@@ -126,7 +136,7 @@ public class BlueAuto extends LinearOpMode {
 
         //turn orthogonal to the build plate
         Grabber.setPosition(Grabber.POSITIONS.PUSHTHROUGH);
-        DriveTrain.turnPID(.3,false,((Math.PI)/2.0));
+        DriveTrain.turnPID(.27,false,((Math.PI)/2.0));
         Grabber.setPosition(Grabber.POSITIONS.CLAMPDOWN);
         //back up to build plate
         DriveTrain.setPower(-.3,-.3);
@@ -136,44 +146,39 @@ public class BlueAuto extends LinearOpMode {
         Thread.sleep(500);
 
         //deposit skystone
+        FoundationHook.toggle();
+
+        Thread.sleep(500);
         Robot.manipMachine();
         Thread.sleep(1000);
-
         //drop the skystone
         Grabber.setPosition(Grabber.POSITIONS.DROP);
-        Thread.sleep(500);
+        Thread.sleep(800);
 
         //bring arm back in
-        Robot.manipMachine();
-
         //toggle foundation hooks
-        FoundationHook.toggle();
-        Thread.sleep(600);
-        DriveTrain.setPower(.25,.25);
+
+        Robot.reset();
+        DriveTrain.turnPID(.5, false, (Math.PI)/4.0, 500);
+        DriveTrain.setPower(.4,.4);
         Thread.sleep(300);
         DriveTrain.stopMotors();
-        DriveTrain.turnPID(.5, false, Math.PI);
+        DriveTrain.turnPID(.5, false, (Math.PI)/2.0, 2000);
         FoundationHook.toggle();
         Thread.sleep(300);
         DriveTrain.setPower(-.3,-.3);
-        Thread.sleep(600);
+        Thread.sleep(450);
         DriveTrain.stopMotors();
-        Thread.sleep(1000);
-//        DriveTrain.turnPID(.3, false, Math.PI, 3000);
-//        Thread.sleep(500);
-//
-//        Robot.manipMachine();
-//        Thread.sleep(1000);
-//
-//        FoundationHook.toggle();
-//        Thread.sleep(500);
-//
-//        DriveTrain.setPower(-0.2,-0.2);
-//        Thread.sleep(1200);
-//        DriveTrain.stopMotors();
 
 
 
+        pp.reset(Paths.getParkBlue(), false);
 
+        while (!pp.isDone() && opModeIsActive()) {
+            lastT = t.seconds() - lastT;
+            Waypoint rloc = Robot.PurePursuit(lastT);
+            List<Double> powers = pp.followPath(new Position(rloc.getX(), rloc.getY(), rloc.getDdx()), rloc.getDx(), rloc.getDy(), lastT);
+            DriveTrain.setPower(powers.get(0), powers.get(1));
+        }
     }
 }

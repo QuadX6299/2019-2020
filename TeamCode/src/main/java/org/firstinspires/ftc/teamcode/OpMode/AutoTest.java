@@ -24,7 +24,6 @@ public class AutoTest extends LinearOpMode {
         waitForStart();
 
         wait(10000);
-        Robot.cancelOdometry();
         AutoTransitioner.transitionOnStop(this, "TeleOp");
        //TODO implement -> dt.moveEncoder(0.5, 200, 1000);
     }

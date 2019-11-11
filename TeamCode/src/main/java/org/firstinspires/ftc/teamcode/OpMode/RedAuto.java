@@ -69,7 +69,15 @@ public class RedAuto extends LinearOpMode {
         waitForStart();
         Intake.power(-1.0);
         Thread.sleep(1000);
-        Intake.stopIntake();
+        Intake.power(0.0);
+        Thread.sleep(500);
+        Intake.power(1.0);
+        Thread.sleep(750);
+        Intake.power(0.0);
+        Thread.sleep(500);
+        Intake.power(1.0);
+        Thread.sleep(750);
+        Intake.power(0.0);
         t.reset();
 
 
@@ -95,25 +103,29 @@ public class RedAuto extends LinearOpMode {
 
 
         //toggle bhorn -> back up -> go forward a bit -> bring up the bhorn -> push through
-        Bhorn.toggle();
+        Bhorn.down();
         Thread.sleep(600);
         DriveTrain.setPower(-.25,-.25);
-        Thread.sleep(900);
+        if(skyStonePosition.equals("R")) {
+            Thread.sleep(750);
+        } else {
+            Thread.sleep(900);
+        }
         DriveTrain.setPower(.2, .2);
         Intake.powerAsync(1.0, 1000);
         Thread.sleep(500);
-        Bhorn.toggle();
+        Bhorn.up();
         DriveTrain.stopMotors();
         Thread.sleep(1000);
         Intake.stopIntake();
         //turn to face towards the build plate
         DriveTrain.turnPID(.27, true, ((3 * Math.PI)/2.0));
-        Intake.powerAsync(-1.0, 200);
+        Intake.powerAsync(-0.75, 300);
 
 
         //get path to get to foundation
         if (skyStonePosition.equals("R")) {
-            pp.reset(Paths.getRedStraight(), false);
+            pp.reset(Paths.getRedStraightRight(), false);
         } else if (skyStonePosition.equals("C")) {
             pp.reset(Paths.getRedStraight(), false);
         } else {
@@ -155,11 +167,10 @@ public class RedAuto extends LinearOpMode {
         Thread.sleep(800);
 
         //bring arm back in
-        Robot.manipMachine();
         //toggle foundation hooks
 
         Robot.reset();
-        DriveTrain.turnPID(.5, true, (7.0*Math.PI)/4.0, 2000);
+        DriveTrain.turnPID(.5, true, (7.0*Math.PI)/4.0, 500);
         DriveTrain.setPower(.5,.5);
         Thread.sleep(400);
         DriveTrain.stopMotors();
@@ -170,6 +181,16 @@ public class RedAuto extends LinearOpMode {
         Thread.sleep(600);
         DriveTrain.stopMotors();
         Thread.sleep(1000);
+
+
+        pp.reset(Paths.getParkRed(), false);
+
+        while (!pp.isDone() && opModeIsActive()) {
+            lastT = t.seconds() - lastT;
+            Waypoint rloc = Robot.PurePursuit(lastT);
+            List<Double> powers = pp.followPath(new Position(rloc.getX(), rloc.getY(), rloc.getDdx()), rloc.getDx(), rloc.getDy(), lastT);
+            DriveTrain.setPower(powers.get(0), powers.get(1));
+        }
 //        DriveTrain.turnPID(.3, false, Math.PI, 3000);
 //        Thread.sleep(500);
 //

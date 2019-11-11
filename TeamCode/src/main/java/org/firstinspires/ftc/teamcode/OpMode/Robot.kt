@@ -5,8 +5,6 @@ import android.os.Looper
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.util.ElapsedTime
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import org.firstinspires.ftc.teamcode.HerculesLibraries.Vision.NewBitMap
 import org.firstinspires.ftc.teamcode.Robot.*
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
@@ -28,7 +26,6 @@ object Robot {
     var g2dpadDelay = ElapsedTime(0)
     var g1btnDelay = ElapsedTime(0)
 
-    private val jobList = mutableListOf<Job>()
 
     private var liftHold : Boolean = false
     private var g2manual : Boolean = true
@@ -152,9 +149,15 @@ object Robot {
                 Grabber.setPosition(Grabber.POSITIONS.HORIZONTALDEPO)
                 g2btnDelay.reset()
             } else if (opMode.gamepad2.x && g2btnDelay.milliseconds() > 150) {
-                Grabber.setPosition(Grabber.POSITIONS.COLLECTION)
+                Grabber.setPosition(Grabber.POSITIONS.ZERO)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    Grabber.setPosition(Grabber.POSITIONS.COLLECTION)
+                }, 500)
                 Grabber.setPosition(Grabber.POSITIONS.DROP)
                 g2btnDelay.reset()
+            } else if (opMode.gamepad2.dpad_right && g2dpadDelay.milliseconds() > 150) {
+                Bhorn.toggle()
+                g2dpadDelay.reset()
             }
         } else {
             if (opMode.gamepad2.y && g2btnDelay.milliseconds() > 150) {
@@ -225,11 +228,6 @@ object Robot {
 //
 //        opMode.telemetry.addLine("Odometry Started")
 //    }
-
-    @ObsoleteCoroutinesApi
-    @JvmStatic fun cancelOdometry() = runBlocking {
-        jobList.forEach { job -> job.cancel() }
-    }
 
     @JvmStatic fun PurePursuit(time : Double) : Waypoint {
         val deltas = DriveTrain.getPose(time)

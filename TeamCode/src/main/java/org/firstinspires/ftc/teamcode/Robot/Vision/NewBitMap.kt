@@ -22,9 +22,6 @@ import android.graphics.Color.green
 import android.graphics.Color.red
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 
-import junit.framework.Test
-
-
 object NewBitMap {
 
 

@@ -22,8 +22,6 @@ import android.graphics.Color.green
 import android.graphics.Color.red
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 
-import junit.framework.Test
-
 
 class BitMap// constructor turns on webcam imaging and sets capacity and format for frame
 (private val opMode: OpMode) {

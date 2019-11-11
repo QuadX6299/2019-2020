@@ -20,7 +20,7 @@ object Paths {
 
     //Use look dist 10
     @JvmStatic
-    val leftBlue = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(25.5, 4.0)), 2.0, .9,.1,.5, MotionConstraint(30.0, 7.0, 1.0))
+    val leftBlue = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(25.5, 3.0)), 2.0, .9,.1,.5, MotionConstraint(30.0, 7.0, 1.0))
 
     @JvmStatic
     val rightBlue = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(36.0,-6.0)), 2.0,.9,.1,0.5,MotionConstraint(30.0,7.0,1.0))
@@ -41,6 +41,9 @@ object Paths {
     val redStraight = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(65.0,0.0)), 2.0, .9,.1,.5, MotionConstraint(30.0, 7.0, 1.0))
 
     @JvmStatic
+    val redStraightRight = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(60.0,0.0)), 2.0, .9,.1,.5, MotionConstraint(30.0, 7.0, 1.0))
+
+    @JvmStatic
     val backUpRedRight = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(40.0,0.0), State(60.0,2.0), State(70.0,-15.0),State (75.0,-25.0)), 6.0,.9,.1,1.0,MotionConstraint(30.0,5.0,1.0))
 
     @JvmStatic
@@ -53,6 +56,12 @@ object Paths {
     @JvmStatic
     val backUpBlock = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(5.0,0.0)),2.0,.9,.1,1.0, MotionConstraint(20.0,5.0,1.0))
 
+
+    @JvmStatic
+    val parkBlue = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(15.0,7.0), State(30.0,14.0)), 6.0,.9,.1,1.0,MotionConstraint(30.0,5.0,1.0))
+
+    @JvmStatic
+    val parkRed = PathGenerator.generate(mutableListOf(State(0.0,0.0), State(25.0,-4.0), State(50.0,-10.0)), 6.0,.9,.1,1.0,MotionConstraint(30.0,5.0,1.0))
 
     //Old paths
 //    @JvmStatic

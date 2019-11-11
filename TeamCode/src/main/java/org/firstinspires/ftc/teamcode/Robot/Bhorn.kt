@@ -12,7 +12,7 @@ object Bhorn {
 
     @JvmStatic fun init(op : OpMode) {
         bhorn = op.hardwareMap.get(Servo::class.java, "bhorn")
-        bhorn.position = 1.0
+        bhorn.position = .8
         isDown = false
     }
 
@@ -24,5 +24,13 @@ object Bhorn {
             isDown = true
             0.0
         }
+    }
+
+    @JvmStatic fun down() {
+        bhorn.position = 0.0
+    }
+
+    @JvmStatic fun up() {
+        bhorn.position = 1.0
     }
 }

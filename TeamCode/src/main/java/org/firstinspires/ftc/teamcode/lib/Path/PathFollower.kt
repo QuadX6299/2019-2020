@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.lib.Path
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.util.ElapsedTime
-import kotlinx.coroutines.newSingleThreadContext
 import org.firstinspires.ftc.teamcode.Robot.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.Constraints.DriveKinematics
 import org.firstinspires.ftc.teamcode.lib.Constraints.MotionConstraint

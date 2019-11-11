@@ -38,9 +38,4 @@ public class TeleOP extends OpMode {
 //            telemetry.addData("Y: ", b.getHeight());
     }
 
-    @Override
-    public void stop() {
-        Robot.cancelOdometry();
-        super.stop();
-    }
 }
