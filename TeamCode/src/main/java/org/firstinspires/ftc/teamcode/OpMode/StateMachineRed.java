@@ -45,7 +45,7 @@ public class StateMachineRed extends OpMode {
         t.reset();
         while (t.seconds() < 5.0 && skystone.equals("NA")) {
             try {
-                skystone = NewBitMap.isShriggaRed();
+                skystone = NewBitMap.redVision();
             } catch (InterruptedException e) {
                 telemetry.addLine("Interrupted Exception");
             }

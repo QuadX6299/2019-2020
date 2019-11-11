@@ -85,7 +85,7 @@ object NewBitMap {
 
     @Throws(InterruptedException::class)
     @JvmStatic
-    fun isShriggaRed(): String {
+    fun redVision(): String {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
         //x : 800
@@ -152,7 +152,7 @@ object NewBitMap {
 
     @Throws(InterruptedException::class)
     @JvmStatic
-    fun isShriggaBlue(): String {
+    fun blueVision(): String {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
         //x : 800

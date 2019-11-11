@@ -54,7 +54,7 @@ public class BlueAuto extends LinearOpMode {
         //vision = new TensorFlowDetection(this);
 
         while(!isStarted()){
-            skyStonePosition = NewBitMap.isShriggaBlue();
+            skyStonePosition = NewBitMap.blueVision();
             telemetry.addData("Skystone Position: ", skyStonePosition);
             telemetry.update();
         }

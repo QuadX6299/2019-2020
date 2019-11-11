@@ -59,7 +59,7 @@ public class RedAuto extends LinearOpMode {
         //vision = new TensorFlowDetection(this);
 
         while(!isStarted()){
-            skyStonePosition = NewBitMap.isShriggaRed();
+            skyStonePosition = NewBitMap.redVision();
             telemetry.addData("Skystone Position: ", skyStonePosition);
             telemetry.update();
         }

@@ -26,7 +26,7 @@ public class TeleOPVision extends OpMode {
     public void loop() {
         if (i.milliseconds() > 500) {
             try {
-                telemetry.addData("Position: ", NewBitMap.isShriggaRed());
+                telemetry.addData("Position: ", NewBitMap.redVision());
                 telemetry.update();
             } catch (InterruptedException e) {
 
