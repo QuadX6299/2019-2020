@@ -14,21 +14,20 @@ import org.firstinspires.ftc.teamcode.Robot.Grabber;
 import org.firstinspires.ftc.teamcode.Robot.Lift;
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU;
 import org.firstinspires.ftc.teamcode.Robot.Sensors.RangeSensor;
+import org.firstinspires.ftc.teamcode.Robot.StackGrabbers;
 
-@TeleOp(name = "test", group = "TeleOp")
+@TeleOp(name = "ClampTest", group = "TeleOp")
 public class TeleOPTEST extends OpMode {
 
-    BitMap vision;
-    ElapsedTime i;
+
     public void init() {
-        Robot.init(this);
+        StackGrabbers.init(this);
     }
 
     public void loop() {
-//        DriveTrain.turnPID(0.01, 0.0, 0.0, true, 90, 1500);
-        if (gamepad1.x) {
-            while (gamepad1.x) {
-                Bhorn.toggle();
+        if (gamepad1.a) {
+            while (gamepad1.a) {
+                StackGrabbers.toggle();
             }
         }
     }
