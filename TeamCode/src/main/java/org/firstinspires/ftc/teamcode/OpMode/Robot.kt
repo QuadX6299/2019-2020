@@ -44,7 +44,7 @@ object Robot {
     @JvmStatic fun init(op : OpMode) {
         opMode = op
         DriveTrain.init(opMode)
-        DriveTrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+        DriveTrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
         IMU.init(opMode)
         Intake.init(opMode)
         Lift.init(opMode)
