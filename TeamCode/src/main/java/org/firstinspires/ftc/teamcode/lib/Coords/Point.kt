@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.lib.Coords
 
 import org.firstinspires.ftc.teamcode.lib.Extensions.minus
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 open class Point(var x: Double, var y: Double) {
@@ -14,5 +16,11 @@ open class Point(var x: Double, var y: Double) {
 
     override fun toString(): String {
         return "($x,$y)"
+    }
+
+    fun rotate(angle : Double) : Point {
+        val x2 = cos(angle) * this.x - sin(angle) * this.y
+        val y2 = sin(angle) * this.x + cos(angle) * this.y
+        return Point(x2,y2)
     }
 }

@@ -4,10 +4,7 @@ import org.firstinspires.ftc.teamcode.lib.Coords.Point
 import org.firstinspires.ftc.teamcode.lib.Coords.Waypoint
 import Spline.ParametricEquation
 import Spline.QHS
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.*
 
 fun Double.fuzzyEquals(b: Double, tolerance: Double): Boolean {
     return abs(this - b) < tolerance
@@ -39,7 +36,6 @@ infix fun Point.vectorProjection(other: Point) : Point = other * ((this scalarPr
 
 fun Point.convertBasis(e0 : Point, e1 : Point) : Point = Point((this scalarProjection e0)/e0.magnitude, (this scalarProjection  e1)/e1.magnitude)
 
-
 fun Double.r2d() : Double = this * (180/ PI)
 
 fun Double.d2r() : Double = this * (PI/180)
@@ -50,4 +46,10 @@ fun Double.limitAngle() : Double = if (this < 0) {
     (PI - abs(this)) + PI
 } else {
     this
+}
+
+fun Double.toVector(angle : Double = 0.0) : Point {
+    val x2 = this * cos(angle)
+    val y2 = this * sin(angle)
+    return Point(x2, y2)
 }
