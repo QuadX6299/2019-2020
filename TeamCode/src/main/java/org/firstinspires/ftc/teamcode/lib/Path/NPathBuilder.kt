@@ -11,7 +11,7 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class NPathBuilder constructor(val spacing : Double = 2.0, val a : Double = .9, val b : Double = .1, val tol : Double = .5, val mc : MotionConstraint = MotionConstraint(30.0, 7.0, 1.0)) {
+class NPathBuilder constructor(val spacing : Double = 6.0, val a : Double = .9, val b : Double = .1, val tol : Double = .5, val mc : MotionConstraint = MotionConstraint(100.0, 20.0, 1.0)) {
     val points : MutableList<State> = mutableListOf()
 
     fun addStraight(to : State) : NPathBuilder {

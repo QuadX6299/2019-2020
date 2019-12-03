@@ -20,7 +20,7 @@ public class TeleOpTest extends OpMode {
     @Override
     public void loop() {
         r.controls();
-        r.getCompanion().getDriveTrain().refresh();
+        r.getCompanion().getDriveTrain().update();
         telemetry.addData("Pose: ",r.getCompanion().getDriveTrain().getPosition());
         telemetry.addData("All Readings: ", r.getCompanion().getDriveTrain().getEncoderAverage());
         telemetry.addData("IMU: ", IMU.heading());

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Robot.NRobot;
 import org.firstinspires.ftc.teamcode.lib.Coords.State;
@@ -20,5 +21,7 @@ public class NRedAuto extends LinearOpMode {
                 .addStraight(new State(-10.0,70.0))
                 .build()
         );
+
+
     }
 }

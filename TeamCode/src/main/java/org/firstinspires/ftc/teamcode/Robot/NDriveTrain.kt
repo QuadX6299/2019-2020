@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.Robot
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.lib.Coords.Position
 import org.firstinspires.ftc.teamcode.Robot.Meta.Constants
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
@@ -16,6 +18,7 @@ import org.firstinspires.ftc.teamcode.lib.Extensions.toVector
 import org.firstinspires.ftc.teamcode.lib.Path.NPathFollower
 import org.firstinspires.ftc.teamcode.lib.Path.PathFollower
 import org.firstinspires.ftc.teamcode.lib.Path.Paths
+import org.firstinspires.ftc.teamcode.lib.Path.TankController
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
 import org.openftc.revextensions2.RevBulkData
@@ -62,18 +65,17 @@ class NDriveTrain constructor(val Op : OpMode) {
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
         resetEncoders()
-
     }
 
-    fun refresh() {
+    fun update() {
         val encoderPose = getEncoderAverage()
         val heading = IMU.heading()
         if (lastWheelPositions.isNotEmpty()) {
             val delta = encoderPose.zip(lastWheelPositions).map { it.first - it.second }
             val (l, r) = delta
             val dist = (l + r) / 2.0
-            val x = dist * sin(heading)
-            val y = dist * cos(heading)
+            val x = dist * cos(heading)
+            val y = dist * sin(heading)
             position = Position(position.x + x, position.y + y, heading)
         }
         lastWheelPositions = encoderPose
@@ -179,19 +181,24 @@ class NDriveTrain constructor(val Op : OpMode) {
     }
 
     fun followPath(path : MutableList<State>) {
-        val follower = PathFollower(path, 10.0, TankKinematics(Constants.DT_WIDTH), org.firstinspires.ftc.teamcode.lib.Constraints.PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
-        20.0, Op)
+        val pid = PIDCoefficients(.01,0.0,.003)
+        val nano = ElapsedTime()
+        val follower = NPathFollower(path = path, op = Op, clock = nano)
+        val leftC = TankController(pid, 1.0/120.0,.002, nano)
+        val rightC = TankController(pid, 1.0/120.0, .002, nano)
         while (!follower.isDone && !Thread.interrupted()) {
-            time = measureTimeMillis {
-                refresh()
+                update()
                 val (l,r) = getVelocityAverage()
-                val (lp, rp) = follower.followPath(position, l, r, time)
+                val (vld, vrd)= follower.getTargets(position)
+                leftC.target = vld
+                rightC.target = vrd
+                val lp = leftC.calc(l)
+                val rp = rightC.calc(r)
                 setPower(lp,rp)
                 Op.telemetry.addData("powers: ", lp)
                 Op.telemetry.addData("powers: ", rp)
                 Op.telemetry.addData("rloc: ", position)
                 Op.telemetry.update()
-            }.toDouble()
         }
     }
 

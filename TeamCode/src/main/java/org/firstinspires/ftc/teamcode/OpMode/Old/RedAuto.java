@@ -103,7 +103,6 @@ public class RedAuto extends LinearOpMode {
             DriveTrain.setPower(powers.get(0), powers.get(1));
         }
 
-
         //toggle bhorn -> back up -> go forward a bit -> bring up the bhorn -> push through
         Bhorn.down();
         Thread.sleep(600);

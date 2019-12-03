@@ -1,32 +1,24 @@
 package org.firstinspires.ftc.teamcode.lib.Path
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.Robot.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.Constraints.DriveKinematics
-import org.firstinspires.ftc.teamcode.lib.Constraints.MotionConstraint
-import org.firstinspires.ftc.teamcode.lib.Constraints.PIDFCoefficients
 import org.firstinspires.ftc.teamcode.lib.Coords.Point
 import org.firstinspires.ftc.teamcode.lib.Coords.Position
 import org.firstinspires.ftc.teamcode.lib.Coords.State
-import org.firstinspires.ftc.teamcode.lib.Coords.Waypoint
 import org.firstinspires.ftc.teamcode.lib.Extensions.*
 import kotlin.math.*
-import org.firstinspires.ftc.teamcode.lib.Math.Arc
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
-import org.firstinspires.ftc.teamcode.OpMode.Robot
 import org.firstinspires.ftc.teamcode.Robot.Meta.Constants
-import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics
 
 
-class NPathFollower constructor(var path : MutableList<State>, var lookDist : Double = 10.0, val kinematics: DriveKinematics = TankKinematics(Constants.DT_WIDTH), val co : PIDFCoefficients = PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003), val acceleration : Double = 20.0, val op : OpMode) {
+class NPathFollower constructor(var path : MutableList<State>, var lookDist : Double = 10.0, val kinematics: DriveKinematics = TankKinematics(Constants.DT_WIDTH), val acceleration : Double = 20.0, val clock : ElapsedTime, val op : OpMode) {
     var lastClosest : Int = 0
     var previousVelocity : Double = 0.0
     var isDone : Boolean = false
     var rloc: Position = Position(0.0,0.0,0.0)
+    var lastTime = Double.NaN
 
     private fun closestWaypoint() : State {
         var minDist = Double.MAX_VALUE
@@ -42,8 +34,9 @@ class NPathFollower constructor(var path : MutableList<State>, var lookDist : Do
         return closestPoint
     }
 
-    fun followPath(rloc: Position, left : Double, right : Double, time: Double) : List<Double> {
+    fun getTargets(rloc: Position) : List<Double> {
         this.rloc = rloc
+        val time = clock.seconds()
         val closestPoint = closestWaypoint()
         if (rloc.x.fuzzyEquals(path.last().x, 2.0) && rloc.y.fuzzyEquals(path.last().y,2.0)) {
             isDone = true
@@ -61,38 +54,13 @@ class NPathFollower constructor(var path : MutableList<State>, var lookDist : Do
                 break
             }
         }
-        op.telemetry.addData("Closest: ", closestPoint)
-        op.telemetry.addData("RlocX: ", rloc.x)
-        op.telemetry.addData("RlocY: ", rloc.y)
-        op.telemetry.update()
         val curvature = findCurvature(looka)
-        val maxC : Double = time * (acceleration)
+        val maxC : Double = (time - if (lastTime.isNaN()) 0.0 else lastTime) * (acceleration)
+        lastTime = time
         val totalChange : Double = (closestPoint.velocity - previousVelocity).clip(-maxC, maxC)
         val newVelocity : Double = previousVelocity + totalChange
         previousVelocity = newVelocity
-        val desiredVelocity = kinematics.getTargetVelocities(min(closestPoint.velocity, newVelocity), curvature)
-        return (PIDF(left,right, desiredVelocity, time))
-    }
-
-    private fun PIDF(left : Double, right : Double, desiredVelocities : List<Double>, time: Double) : List<Double> {
-        val eL = desiredVelocities[0] - left
-        val eR = desiredVelocities[1] - right
-        val ffl = ((co.kV * desiredVelocities[0]))
-        val ffr = ((co.kV * desiredVelocities[1]))
-        var leftPower = ffl + eL * co.kP
-        var rightPower = ffr + eR * co.kP
-        if (leftPower > 1.0 || rightPower > 1.0) {
-            if (leftPower > 1.0 && leftPower > rightPower) {
-                val mult = 1.0/leftPower
-                leftPower *= mult
-                rightPower *= mult
-            } else if (rightPower > 1.0) {
-                val mult = 1.0/rightPower
-                leftPower *= mult
-                rightPower *= mult
-            }
-        }
-        return listOf(leftPower, rightPower)
+        return kinematics.getTargetVelocities(min(closestPoint.velocity, newVelocity), curvature)
     }
 
     private fun lookAhead(rloc: Position, closest : State) : Point? {

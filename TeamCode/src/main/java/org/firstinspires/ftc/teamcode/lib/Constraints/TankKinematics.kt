@@ -5,6 +5,6 @@ class TankKinematics(val w : Double) : DriveKinematics {
 
         val left : Double = v * (2.0 + k*w)/2.0
         val right : Double = v * (2.0 - k*w)/2.0
-        return listOf(left, right, left, right)
+        return listOf(left, right)
     }
 }
