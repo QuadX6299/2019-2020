@@ -148,4 +148,12 @@ class NRobot constructor(val opMode: OpMode) {
     fun getCompanion() : Modules {
         return Modules
     }
+
+    fun followPath(points : MutableList<State>) {
+        DriveTrain.followPath(points)
+    }
+
+    fun builder() : NPathBuilder {
+        return Generator
+    }
 }

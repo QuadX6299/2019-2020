@@ -4,6 +4,8 @@ class State constructor(x : Double, y : Double, var velocity : Double = 0.0, var
     val location : Point
         get() = Point(x,y)
 
+    constructor(x : Double, y : Double) : this(x,y,0.0,0.0,0.0,Point(0.0,0.0))
+
     override fun toString() : String {
         return "($x,$y)"
     }

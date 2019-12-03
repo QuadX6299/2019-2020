@@ -8,19 +8,26 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.teamcode.lib.Coords.Position
 import org.firstinspires.ftc.teamcode.Robot.Meta.Constants
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
+import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics
 import org.firstinspires.ftc.teamcode.lib.Coords.Point
+import org.firstinspires.ftc.teamcode.lib.Coords.State
 import org.firstinspires.ftc.teamcode.lib.Extensions.plus
 import org.firstinspires.ftc.teamcode.lib.Extensions.toVector
+import org.firstinspires.ftc.teamcode.lib.Path.NPathFollower
+import org.firstinspires.ftc.teamcode.lib.Path.PathFollower
+import org.firstinspires.ftc.teamcode.lib.Path.Paths
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
 import org.openftc.revextensions2.RevBulkData
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.system.measureTimeMillis
 
 class NDriveTrain constructor(val Op : OpMode) {
     var position : Position = Position(0.0,0.0,0.0)
     var lastWheelPositions = emptyList<Double>()
+    var time = 0.0
 
     val motorType : MotorConfigurationType = Constants.MOTOR_CONFIG
 
@@ -65,7 +72,7 @@ class NDriveTrain constructor(val Op : OpMode) {
             val delta = encoderPose.zip(lastWheelPositions).map { it.first - it.second }
             val (l, r) = delta
             val dist = (l + r) / 2.0
-            val x = dist * sin(heading) * -1.0
+            val x = dist * sin(heading)
             val y = dist * cos(heading)
             position = Position(position.x + x, position.y + y, heading)
         }
@@ -106,8 +113,6 @@ class NDriveTrain constructor(val Op : OpMode) {
     }
 
     fun getVelocityAverage() : List<Double> {
-        var leftC : Int = 0
-        var rightC : Int = 0
         var leftSum : Double = 0.0
         var rightSum : Double = 0.0
 
@@ -115,19 +120,13 @@ class NDriveTrain constructor(val Op : OpMode) {
         val bulkR : RevBulkData = hubR.bulkInputData
 
         left.forEach {
-            if (bulkL.getMotorCurrentPosition(it) != 0) {
-                leftC++
                 leftSum += bulkL.getMotorVelocity(it).toDouble().e2i()
-            }
         }
         right.forEach {
-            if (bulkR.getMotorCurrentPosition(it) != 0) {
-                rightC++
                 rightSum += bulkR.getMotorVelocity(it).toDouble().e2i()
-            }
         }
 
-        return listOf(leftSum / leftC.toDouble(), rightSum / rightC.toDouble())
+        return listOf(leftSum / 3.0, rightSum / 3.0)
     }
 
     fun getAllReadings() : List<Double> {
@@ -178,4 +177,23 @@ class NDriveTrain constructor(val Op : OpMode) {
     fun turnPrimitive(power : Double, right : Boolean) {
         if (right) setPower(power, -power) else setPower(-power, power)
     }
+
+    fun followPath(path : MutableList<State>) {
+        val follower = PathFollower(path, 10.0, TankKinematics(Constants.DT_WIDTH), org.firstinspires.ftc.teamcode.lib.Constraints.PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
+        20.0, Op)
+        while (!follower.isDone && !Thread.interrupted()) {
+            time = measureTimeMillis {
+                refresh()
+                val (l,r) = getVelocityAverage()
+                val (lp, rp) = follower.followPath(position, l, r, time)
+                setPower(lp,rp)
+                Op.telemetry.addData("powers: ", lp)
+                Op.telemetry.addData("powers: ", rp)
+                Op.telemetry.addData("rloc: ", position)
+                Op.telemetry.update()
+            }.toDouble()
+        }
+    }
+
+
 }
