@@ -9,6 +9,6 @@ object Constants {
     val MOTOR_CONFIG : MotorConfigurationType = MotorConfigurationType.getMotorType(GoBILDA435::class.java)
     const val WHEEL_RAD : Double = 2.0
     const val GEAR_RATIO : Double = 1.0
-    const val DT_WIDTH : Double = 12.0
+    const val DT_WIDTH : Double = 19.0
 
 }

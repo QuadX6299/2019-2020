@@ -20,23 +20,18 @@ import kotlin.math.sin
 
 class NDriveTrain constructor(val Op : OpMode) {
     var position : Position = Position(0.0,0.0,0.0)
-    var lastPosition : Position? = null
     var lastWheelPositions = emptyList<Double>()
-    var lastHeading : Double? = null
 
     val motorType : MotorConfigurationType = Constants.MOTOR_CONFIG
 
-    lateinit var left : List<ExpansionHubMotor>
-    lateinit var right : List<ExpansionHubMotor>
-    lateinit var all : List<ExpansionHubMotor>
+    val left : List<ExpansionHubMotor>
+    val right : List<ExpansionHubMotor>
+    val all : List<ExpansionHubMotor>
 
-    lateinit var hubL : ExpansionHubEx
-    lateinit var hubR : ExpansionHubEx
+    val hubL : ExpansionHubEx = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubLeft")
+    val hubR : ExpansionHubEx = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
 
     init {
-        hubL = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubLeft")
-        hubR = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
-
         val fl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
         val ml : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "ml")
         val bl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
@@ -58,6 +53,8 @@ class NDriveTrain constructor(val Op : OpMode) {
             it.setPIDFCoefficients(it.mode, PIDFCoefficients(35.0,0.0,30.0,0.0))
         }
 
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+        resetEncoders()
 
     }
 
@@ -66,47 +63,16 @@ class NDriveTrain constructor(val Op : OpMode) {
         val heading = IMU.heading()
         if (lastWheelPositions.isNotEmpty()) {
             val delta = encoderPose.zip(lastWheelPositions).map { it.first - it.second }
-            val (l, r) = encoderPose
+            val (l, r) = delta
             val dist = (l + r) / 2.0
-            val fullAngleDelta = {
-                var leftover = heading % (2.0 * PI)
-                leftover = (leftover + 2 * PI) % (2 * PI)
-                if (leftover > PI) {
-                    leftover -= (2*PI)
-                }
-                leftover
-            }
-            //poseEstimate = fieldPosition
-            //robot pose delta = distance, heading
-            val newPose = {
-                val dtheta = fullAngleDelta()
-                val (sineTerm, cosTerm) = if (dtheta < .000001) {
-                    1.0 - dtheta * dtheta / 6.0 to dtheta / 2.0
-                } else {
-                    sin(dtheta) / dtheta to (1 - cos(dtheta)) / dtheta
-                }
-
-                val fieldPositionDelta = Point(
-                        sineTerm * dist,
-                        cosTerm * dist
-                )
-                val rotatedAngle = fieldPositionDelta.rotate(position.heading)
-                val fieldPoseDelta = Position(rotatedAngle.x, rotatedAngle.y, fullAngleDelta())
-
-                val norm = {
-                    var leftover = (position.heading + fieldPoseDelta.heading) % (2.0 * PI)
-                    leftover = (leftover + 2 * PI) % (2 * PI)
-                    leftover
-                }
-                Position(dist + fieldPoseDelta.x, fieldPoseDelta.y, norm())
-            }
-            position = newPose()
-            lastWheelPositions = encoderPose
-            lastHeading = heading
+            val x = dist * sin(heading) * -1.0
+            val y = dist * cos(heading)
+            position = Position(position.x + x, position.y + y, heading)
         }
+        lastWheelPositions = encoderPose
     }
 
-    fun Double.e2i() : Double = (Constants.WHEEL_RAD * 2.0 * PI * Constants.GEAR_RATIO * this) / motorType.ticksPerRev
+    fun Double.e2i() : Double = (Constants.WHEEL_RAD * 2.0 * PI * Constants.GEAR_RATIO * this) / 383.6
 
     fun Double.rpmToVel() : Double = (this * Constants.GEAR_RATIO * 2.0 * PI * Constants.WHEEL_RAD) / 60.0
 
@@ -123,8 +89,6 @@ class NDriveTrain constructor(val Op : OpMode) {
     }
 
     fun getEncoderAverage() : List<Double> {
-        var leftC : Int = 0
-        var rightC : Int = 0
         var leftSum : Double = 0.0
         var rightSum : Double = 0.0
 
@@ -132,19 +96,13 @@ class NDriveTrain constructor(val Op : OpMode) {
         val bulkR : RevBulkData = hubR.bulkInputData
 
         left.forEach {
-            if (bulkL.getMotorCurrentPosition(it) != 0) {
-                leftC++
-                leftSum += bulkL.getMotorCurrentPosition(it).toDouble().e2i()
-            }
+            leftSum += bulkL.getMotorCurrentPosition(it).toDouble().e2i()
         }
         right.forEach {
-            if (bulkR.getMotorCurrentPosition(it) != 0) {
-                rightC++
-                rightSum += bulkR.getMotorCurrentPosition(it).toDouble().e2i()
-            }
+            rightSum += bulkR.getMotorCurrentPosition(it).toDouble().e2i()
         }
 
-        return listOf(leftSum / leftC.toDouble(), rightSum / rightC.toDouble())
+        return listOf(leftSum / 3.0, rightSum / 3.0)
     }
 
     fun getVelocityAverage() : List<Double> {
@@ -170,6 +128,19 @@ class NDriveTrain constructor(val Op : OpMode) {
         }
 
         return listOf(leftSum / leftC.toDouble(), rightSum / rightC.toDouble())
+    }
+
+    fun getAllReadings() : List<Double> {
+        val readings : MutableList<Double> = mutableListOf()
+        val bulkL : RevBulkData = hubL.bulkInputData
+        val bulkR : RevBulkData = hubR.bulkInputData
+        left.forEach {
+            readings.add(bulkL.getMotorCurrentPosition(it).toDouble().e2i())
+        }
+        right.forEach {
+            readings.add(bulkR.getMotorCurrentPosition(it).toDouble().e2i())
+        }
+        return readings
     }
 
     fun resetEncoders() {

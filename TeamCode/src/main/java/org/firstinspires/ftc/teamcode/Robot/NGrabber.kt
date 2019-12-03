@@ -9,15 +9,17 @@ class NGrabber constructor(Op : OpMode, moveOnInit : Boolean = true) {
     val RotateAssembly : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "rotateAssembly")
     val Horn : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "push")
 
-    init {
-        if (moveOnInit) {
-            resetPositions()
-        }
-    }
-
     var offset = ORIENTATIONS.VERTICAL
     var hornDown = false
     var grabberDown = false
+
+    init {
+        if (moveOnInit) {
+            resetPositions()
+            setAssemblyPosition(POSITIONS.COLLECTION)
+        }
+    }
+
 
     enum class ORIENTATIONS(val difference : Double) {
         HORIZONTAL(.77),

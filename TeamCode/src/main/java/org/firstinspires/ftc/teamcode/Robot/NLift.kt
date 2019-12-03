@@ -5,10 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import org.openftc.revextensions2.ExpansionHubMotor
 
 class NLift constructor(Op : OpMode) {
-    lateinit var lift : ExpansionHubMotor
+    val lift : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "lift")
 
     init {
-        Op.hardwareMap.get(ExpansionHubMotor::class.java, "lift")
         lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         lift.mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
