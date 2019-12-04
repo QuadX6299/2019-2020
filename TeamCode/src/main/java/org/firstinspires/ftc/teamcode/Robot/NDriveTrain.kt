@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -199,6 +200,35 @@ class NDriveTrain constructor(val Op : OpMode) {
                 Op.telemetry.addData("powers: ", rp)
                 Op.telemetry.addData("rloc: ", position)
                 Op.telemetry.update()
+        }
+    }
+
+    fun followPath(path : MutableList<State>, pidCoefficients: PIDCoefficients, kv: Double, ka: Double) {
+        val pid = pidCoefficients
+        val nano = ElapsedTime()
+        val follower = NPathFollower(path = path, op = Op, clock = nano)
+        val leftC = TankController(pid, kv,ka, nano)
+        val rightC = TankController(pid, kv, ka, nano)
+        val dash = FtcDashboard.getInstance()
+        Op.telemetry = dash.telemetry
+        while (!follower.isDone && !Thread.interrupted()) {
+            update()
+            val (l,r) = getVelocityAverage()
+            val (vld, vrd)= follower.getTargets(position)
+            leftC.target = vld
+            rightC.target = vrd
+            val lp = leftC.calc(l)
+            val rp = rightC.calc(r)
+            setPower(lp,rp)
+            Op.telemetry.addData("Left Vel", vld)
+            Op.telemetry.addData("Right Vel", vrd)
+            Op.telemetry.addData("L Actual", l)
+            Op.telemetry.addData("R Actual", r)
+            Op.telemetry.addData("E Left", vld - l)
+            Op.telemetry.addData("E Right", vrd - r)
+            Op.telemetry.addData("Power Left", lp)
+            Op.telemetry.addData("Power Right", rp)
+            Op.telemetry.update()
         }
     }
 

@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
+import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Coords.State
@@ -151,6 +152,10 @@ class NRobot constructor(val opMode: OpMode) {
 
     fun followPath(points : MutableList<State>) {
         DriveTrain.followPath(points)
+    }
+
+    fun followPath(points : MutableList<State>, pidCoefficients: PIDCoefficients, kv : Double, ka : Double) {
+        DriveTrain.followPath(points, pidCoefficients, kv, ka)
     }
 
     fun builder() : NPathBuilder {
