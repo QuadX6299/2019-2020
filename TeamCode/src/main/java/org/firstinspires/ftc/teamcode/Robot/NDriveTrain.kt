@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.lib.Coords.Position
 import org.firstinspires.ftc.teamcode.Robot.Meta.Constants
+import org.firstinspires.ftc.teamcode.Robot.Sensors.Clock
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics
 import org.firstinspires.ftc.teamcode.lib.Coords.Point
@@ -184,9 +185,9 @@ class NDriveTrain constructor(val Op : OpMode) {
     fun followPath(path : MutableList<State>) {
         val pid = PIDCoefficients(.01,0.0,.003)
         val nano = ElapsedTime()
-        val follower = NPathFollower(path = path, op = Op, clock = nano)
-        val leftC = TankController(pid, 1.0/120.0,.002, nano)
-        val rightC = TankController(pid, 1.0/120.0, .002, nano)
+        val follower = NPathFollower(path = path, op = Op)
+        val leftC = TankController(pid, 1.0/120.0,.002)
+        val rightC = TankController(pid, 1.0/120.0, .002)
         while (!follower.isDone && !Thread.interrupted()) {
                 update()
                 val (l,r) = getVelocityAverage()
@@ -205,10 +206,9 @@ class NDriveTrain constructor(val Op : OpMode) {
 
     fun followPath(path : MutableList<State>, pidCoefficients: PIDCoefficients, kv: Double, ka: Double) {
         val pid = pidCoefficients
-        val nano = ElapsedTime()
-        val follower = NPathFollower(path = path, op = Op, clock = nano)
-        val leftC = TankController(pid, kv,ka, nano)
-        val rightC = TankController(pid, kv, ka, nano)
+        val follower = NPathFollower(path = path, op = Op)
+        val leftC = TankController(pid, kv, ka)
+        val rightC = TankController(pid, kv, ka)
         val dash = FtcDashboard.getInstance()
         Op.telemetry = dash.telemetry
         while (!follower.isDone && !Thread.interrupted()) {

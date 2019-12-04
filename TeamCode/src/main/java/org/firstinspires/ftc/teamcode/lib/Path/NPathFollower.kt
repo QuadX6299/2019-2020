@@ -10,10 +10,11 @@ import org.firstinspires.ftc.teamcode.lib.Coords.State
 import org.firstinspires.ftc.teamcode.lib.Extensions.*
 import kotlin.math.*
 import org.firstinspires.ftc.teamcode.Robot.Meta.Constants
+import org.firstinspires.ftc.teamcode.Robot.Sensors.Clock
 import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics
 
 
-class NPathFollower constructor(var path : MutableList<State>, var lookDist : Double = 10.0, val kinematics: DriveKinematics = TankKinematics(Constants.DT_WIDTH), val acceleration : Double = 20.0, val clock : ElapsedTime, val op : OpMode) {
+class NPathFollower constructor(var path : MutableList<State>, var lookDist : Double = 10.0, val kinematics: DriveKinematics = TankKinematics(Constants.DT_WIDTH), val acceleration : Double = 20.0, val clock : Clock = Clock.system(), val op : OpMode) {
     var lastClosest : Int = 0
     var previousVelocity : Double = 0.0
     var isDone : Boolean = false
