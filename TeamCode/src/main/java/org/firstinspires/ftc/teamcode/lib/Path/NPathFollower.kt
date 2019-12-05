@@ -39,7 +39,7 @@ class NPathFollower constructor(var path : MutableList<State>, var lookDist : Do
         this.rloc = rloc
         val time = clock.seconds()
         val closestPoint = closestWaypoint()
-        if (rloc.x.fuzzyEquals(path.last().x, 2.0) && rloc.y.fuzzyEquals(path.last().y,2.0)) {
+        if (rloc.x.fuzzyEquals(path.last().x, 0.5) && rloc.y.fuzzyEquals(path.last().y,0.5)) {
             isDone = true
             return listOf(0.0,0.0)
         }

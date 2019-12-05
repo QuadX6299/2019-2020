@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics
 import org.firstinspires.ftc.teamcode.lib.Coords.Point
 import org.firstinspires.ftc.teamcode.lib.Coords.State
+import org.firstinspires.ftc.teamcode.lib.Extensions.d2r
+import org.firstinspires.ftc.teamcode.lib.Extensions.fuzzyEquals
 import org.firstinspires.ftc.teamcode.lib.Extensions.plus
 import org.firstinspires.ftc.teamcode.lib.Extensions.toVector
 import org.firstinspires.ftc.teamcode.lib.Path.NPathFollower
@@ -24,9 +26,7 @@ import org.firstinspires.ftc.teamcode.lib.Path.TankController
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
 import org.openftc.revextensions2.RevBulkData
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 import kotlin.system.measureTimeMillis
 
 class NDriveTrain constructor(val Op : OpMode) {
@@ -43,15 +43,15 @@ class NDriveTrain constructor(val Op : OpMode) {
     val hubL : ExpansionHubEx = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubLeft")
     val hubR : ExpansionHubEx = Op.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
 
+    val fl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
+    val ml : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "ml")
+    val bl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
+
+    val fr : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fr")
+    val mr : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "mr")
+    val br : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "br")
+
     init {
-        val fl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
-        val ml : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "ml")
-        val bl : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
-
-        val fr : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fr")
-        val mr : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "mr")
-        val br : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "br")
-
         fr.direction = DcMotorSimple.Direction.REVERSE
         br.direction = DcMotorSimple.Direction.REVERSE
         mr.direction = DcMotorSimple.Direction.REVERSE
@@ -62,7 +62,7 @@ class NDriveTrain constructor(val Op : OpMode) {
 
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
-            it.setPIDFCoefficients(it.mode, PIDFCoefficients(35.0,0.0,30.0,0.0))
+            it.setPIDFCoefficients(it.mode, PIDFCoefficients(25.0,0.5,20.0,0.0))
         }
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
@@ -83,7 +83,15 @@ class NDriveTrain constructor(val Op : OpMode) {
         lastWheelPositions = encoderPose
     }
 
+    fun setPIDCoefficients(pid : PIDFCoefficients) {
+        all.forEach {
+            it.setPIDFCoefficients(it.mode, pid)
+        }
+    }
+
     fun Double.e2i() : Double = (Constants.WHEEL_RAD * 2.0 * PI * Constants.GEAR_RATIO * this) / 383.6
+
+    fun Double.i2e() : Double = (this * 383.6) / (Constants.WHEEL_RAD * 2.0 * PI * Constants.GEAR_RATIO)
 
     fun Double.rpmToVel() : Double = (this * Constants.GEAR_RATIO * 2.0 * PI * Constants.WHEEL_RAD) / 60.0
 
@@ -178,16 +186,25 @@ class NDriveTrain constructor(val Op : OpMode) {
         }
     }
 
+    fun turnPID(kP:Double, right:Boolean, angle:Double){
+        while (!IMU.heading().fuzzyEquals(angle, 3.0.d2r()) && !Thread.interrupted()) {
+            val error : Double = abs(angle - IMU.heading())
+            Op.telemetry.addData("Error", error)
+            turnPrimitive(max(error * kP,.1), right)
+        }
+        setPower(0.0,0.0)
+    }
+
     fun turnPrimitive(power : Double, right : Boolean) {
         if (right) setPower(power, -power) else setPower(-power, power)
     }
 
-    fun followPath(path : MutableList<State>) {
-        val pid = PIDCoefficients(.01,0.0,.003)
+    fun followPath(path : MutableList<State>, reversed : Boolean = false) {
+        val pid = PIDCoefficients(.015,0.0,0.0)
         val nano = ElapsedTime()
         val follower = NPathFollower(path = path, op = Op)
-        val leftC = TankController(pid, 1.0/120.0,.002)
-        val rightC = TankController(pid, 1.0/120.0, .002)
+        val leftC = TankController(pid, 1.0/80.0,.003, Op = Op)
+        val rightC = TankController(pid, 1.0/80.0, .003, Op = Op)
         while (!follower.isDone && !Thread.interrupted()) {
                 update()
                 val (l,r) = getVelocityAverage()
@@ -207,11 +224,11 @@ class NDriveTrain constructor(val Op : OpMode) {
     fun followPath(path : MutableList<State>, pidCoefficients: PIDCoefficients, kv: Double, ka: Double) {
         val pid = pidCoefficients
         val follower = NPathFollower(path = path, op = Op)
-        val leftC = TankController(pid, kv, ka)
-        val rightC = TankController(pid, kv, ka)
+        val leftC = TankController(pid, kv, ka, Op = Op)
+        val rightC = TankController(pid, kv, ka, Op = Op)
         val dash = FtcDashboard.getInstance()
         Op.telemetry = dash.telemetry
-        while (!follower.isDone && !Thread.interrupted()) {
+        while (!follower.isDone) {
             update()
             val (l,r) = getVelocityAverage()
             val (vld, vrd)= follower.getTargets(position)
@@ -232,5 +249,21 @@ class NDriveTrain constructor(val Op : OpMode) {
         }
     }
 
+    fun encoderDrive(inches : Double) {
+        var (lc,rc) = getEncoderAverage()
+        val targetL = lc + inches.i2e()
+        val targetR = rc + inches.i2e()
 
+        while (!lc.fuzzyEquals(targetL, 20.0) && !rc.fuzzyEquals(targetR, 20.0) && !Thread.interrupted()) {
+            val enc = getEncoderAverage()
+            lc = enc[0]
+            rc = enc[1]
+            val power = if (targetL > lc) {
+                .5
+            } else {
+                -.5
+            }
+            setPower(power,power)
+        }
+    }
 }

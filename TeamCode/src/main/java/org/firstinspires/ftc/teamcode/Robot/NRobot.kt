@@ -5,14 +5,13 @@ import android.os.Looper
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.PIDCoefficients
+import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Coords.State
 import org.firstinspires.ftc.teamcode.lib.Extensions.clip
 import org.firstinspires.ftc.teamcode.lib.Path.NPathBuilder
-import kotlin.math.abs
-import kotlin.math.pow
-import kotlin.math.sign
+import kotlin.math.*
 
 class NRobot constructor(val opMode: OpMode) {
 
@@ -20,6 +19,15 @@ class NRobot constructor(val opMode: OpMode) {
     
     var g1prev : Gamepad = Gamepad()
     var g2prev : Gamepad = Gamepad()
+
+    val dt get() = DriveTrain
+    val grabber get() = Grabber
+    val intake get() = Intake
+    val lift get() = Lift
+    val foundation get() = FoundationHook
+    val cap get() = Cap
+    val bhorn get() = Bhorn
+    val companion get() = Modules
 
     companion object Modules {
         lateinit var DriveTrain : NDriveTrain
@@ -29,6 +37,8 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var FoundationHook : NFoundationHook
         lateinit var OSAsync : Handler
         lateinit var Generator : NPathBuilder
+        lateinit var Cap : NCap
+        lateinit var Bhorn : NBhorn
 
         fun init(Op : OpMode) {
             DriveTrain = NDriveTrain(Op)
@@ -38,7 +48,9 @@ class NRobot constructor(val opMode: OpMode) {
             FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
+            Bhorn = NBhorn(Op)
             IMU.init(Op)
+            Cap = NCap(Op)
         }
     }
 
@@ -86,6 +98,14 @@ class NRobot constructor(val opMode: OpMode) {
             OSAsync.postDelayed({
                 Grabber.setAssemblyPosition(NGrabber.POSITIONS.COLLECTION)
             }, 500)
+        } else if (opMode.gamepad2.dpad_right && g2prev.dpad_right != opMode.gamepad2.dpad_right){
+            Cap.toggle()
+        } else if (opMode.gamepad2.dpad_left && g2prev.dpad_left != opMode.gamepad2.dpad_left){
+            Grabber.setAssemblyPosition(NGrabber.POSITIONS.TRANSITION)
+            OSAsync.postDelayed({
+                Grabber.setAssemblyPosition(NGrabber.POSITIONS.CAP)
+            },750)
+
         }
         g2prev.copy(opMode.gamepad2)
     }
@@ -121,10 +141,10 @@ class NRobot constructor(val opMode: OpMode) {
         }
     }
 
-    fun sixArcadeArc() {
+    fun sixArcadeArcTank() {
         if (abs(opMode.gamepad1.left_stick_y) > .01 || abs(opMode.gamepad1.right_stick_x) > .01) {
             val multiplier = if (opMode.gamepad1.right_trigger > .5) {
-                .5
+                .3
             } else {
                 1.0
             }
@@ -146,9 +166,43 @@ class NRobot constructor(val opMode: OpMode) {
         }
     }
 
-    fun getCompanion() : Modules {
-        return Modules
+    fun sixArcadeArc() {
+        //checking for valid range to apply power (has to give greater power than .1)
+        if (((abs(hypot(opMode.gamepad1.left_stick_x, opMode.gamepad1.left_stick_y))) > .1) ||
+                abs(atan2(opMode.gamepad1.left_stick_y, opMode.gamepad1.left_stick_x) - PI / 4) > .1) {
+
+            val r : Double = hypot(opMode.gamepad1.left_stick_x, opMode.gamepad1.left_stick_y).toDouble();
+            val theta : Double = atan2(opMode.gamepad1.left_stick_y, -opMode.gamepad1.left_stick_x) - PI / 4;
+            val rightX : Double = -opMode.gamepad1.right_stick_x.toDouble();
+
+            //as per unit circle cos gives x, sin gives you y
+            var FL : Double = r * cos(theta) + rightX
+            var FR : Double = r * sin(theta) - rightX
+            var BL : Double = r * sin(theta) + rightX
+            var BR : Double = r * cos(theta) - rightX
+
+            //make sure you don't try and give power bigger than 1
+            if (((abs(FL) > 1) || (abs(BL) > 1)) || ((abs(FR) > 1) || (abs(BR) > 1))) {
+                FL /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
+                BL /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
+                FR /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
+                BR /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
+
+            }
+            DriveTrain.fl.power = FL
+            DriveTrain.ml.power = FL
+
+            DriveTrain.fr.power = FR
+            DriveTrain.bl.power = BL
+
+            DriveTrain.br.power = BR
+            DriveTrain.mr.power = BR
+        }
+        else {
+            DriveTrain.setPower(0.0,0.0)
+        }
     }
+
 
     fun followPath(points : MutableList<State>) {
         DriveTrain.followPath(points)

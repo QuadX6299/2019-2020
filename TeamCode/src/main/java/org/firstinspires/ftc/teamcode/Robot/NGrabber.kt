@@ -37,7 +37,8 @@ class NGrabber constructor(Op : OpMode, moveOnInit : Boolean = true) {
         HORNUP,
         VERTICALDEPO,
         CLAMPDOWN,
-        DROP
+        DROP,
+        CAP
     }
 
     fun setAssemblyPosition(pose : POSITIONS) {
@@ -70,6 +71,10 @@ class NGrabber constructor(Op : OpMode, moveOnInit : Boolean = true) {
             }
             POSITIONS.HORNUP -> {
                 Horn.position = 1.0
+            }
+            POSITIONS.CAP -> {
+                RotateAssembly.position = .23
+                RotateGrabber.position = 0.28
             }
         }
     }

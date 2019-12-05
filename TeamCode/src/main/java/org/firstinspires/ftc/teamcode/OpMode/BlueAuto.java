@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpMode.Old;
-import android.os.Handler;
-import android.os.Looper;
+package org.firstinspires.ftc.teamcode.OpMode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,21 +12,18 @@ import org.firstinspires.ftc.teamcode.Robot.DriveTrain;
 import org.firstinspires.ftc.teamcode.Robot.FoundationHook;
 import org.firstinspires.ftc.teamcode.Robot.Grabber;
 import org.firstinspires.ftc.teamcode.Robot.Intake;
-import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU;
-import org.firstinspires.ftc.teamcode.Robot.Sensors.RangeSensor;
 import org.firstinspires.ftc.teamcode.lib.Constraints.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.lib.Constraints.TankKinematics;
 import org.firstinspires.ftc.teamcode.lib.Coords.Position;
 import org.firstinspires.ftc.teamcode.lib.Coords.Waypoint;
 import org.firstinspires.ftc.teamcode.lib.Path.PathFollower;
 import org.firstinspires.ftc.teamcode.lib.Path.Paths;
-import org.firstinspires.ftc.teamcode.lib.Path.TestPaths;
 
 import java.util.List;
 
-@Autonomous(name = "RedAuto", group = "Auto")
+@Autonomous(name = "BlueAutoRed", group = "Auto")
 
-public class RedAuto extends LinearOpMode {
+public class BlueAuto extends LinearOpMode {
     private AutoStates state;
     private PathFollower pp;
     private ElapsedTime t;
@@ -61,7 +56,7 @@ public class RedAuto extends LinearOpMode {
         //vision = new TensorFlowDetection(this);
 
         while(!isStarted()){
-            skyStonePosition = NewBitMap.redVision();
+            skyStonePosition = NewBitMap.blueVision();
             telemetry.addData("Skystone Position: ", skyStonePosition);
             telemetry.update();
         }
@@ -70,32 +65,28 @@ public class RedAuto extends LinearOpMode {
 
         waitForStart();
         Intake.power(-1.0);
-        Thread.sleep(1000);
+        Thread.sleep(500);
         Intake.power(0.0);
         Thread.sleep(500);
         Intake.power(1.0);
-        Thread.sleep(750);
-        Intake.power(0.0);
         Thread.sleep(500);
-        Intake.power(1.0);
-        Thread.sleep(750);
         Intake.power(0.0);
         t.reset();
 
 
-        //scan skystone position
+        //set path to collect stone
         if (skyStonePosition.equals("L")){
-            pp = new PathFollower(Paths.getLeftRed(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
+            pp = new PathFollower(Paths.getLeftBlue(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
                     5.0, this);
         } else if (skyStonePosition.equals("C")){
-            pp = new PathFollower(Paths.getStraightRed(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.01,0.0,.0003,1/120.0,.0003),
+            pp = new PathFollower(Paths.getStraightBlue(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
                     5.0, this);
         } else if (skyStonePosition.equals("R")){
-            pp = new PathFollower(Paths.getRightRed(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
+            pp = new PathFollower(Paths.getRightBlue(), 10.0, new TankKinematics(DriveTrain.width + 5.0), new PIDFCoefficients(.007,0.0,.0003,1/120.0,.0003),
                     5.0, this);
         }
 
-        //follow given path to skystone
+        //run the path
         while (!pp.isDone() && opModeIsActive()) {
             lastT = t.seconds() - lastT;
             Waypoint rloc = Robot.PurePursuit(lastT);
@@ -103,14 +94,13 @@ public class RedAuto extends LinearOpMode {
             DriveTrain.setPower(powers.get(0), powers.get(1));
         }
 
-        //toggle bhorn -> back up -> go forward a bit -> bring up the bhorn -> push through
         Bhorn.down();
         Thread.sleep(600);
         DriveTrain.setPower(-.25,-.25);
         if(skyStonePosition.equals("R")) {
-            Thread.sleep(750);
+            Thread.sleep(850);
         } else {
-            Thread.sleep(900);
+            Thread.sleep(750);
         }
         DriveTrain.setPower(.2, .2);
         Intake.powerAsync(1.0, 1000);
@@ -120,17 +110,17 @@ public class RedAuto extends LinearOpMode {
         Thread.sleep(1000);
         Intake.stopIntake();
         //turn to face towards the build plate
-        DriveTrain.turnPID(.27, true, ((3 * Math.PI)/2.0));
+        DriveTrain.turnPID(.27, false, (( Math.PI)/2.0));
         Intake.powerAsync(-0.75, 300);
 
 
         //get path to get to foundation
         if (skyStonePosition.equals("R")) {
-            pp.reset(Paths.getRedStraightRight(), false);
+            pp.reset(Paths.getBlueStraight(), false);
         } else if (skyStonePosition.equals("C")) {
-            pp.reset(Paths.getRedStraight(), false);
+            pp.reset(Paths.getBlueStraight(), false);
         } else {
-            pp.reset(Paths.getRedStraight(), false);
+            pp.reset(Paths.getBlueStraight(), false);
         }
 
         //travel to foundation
@@ -148,7 +138,7 @@ public class RedAuto extends LinearOpMode {
 
         //turn orthogonal to the build plate
         Grabber.setPosition(Grabber.POSITIONS.PUSHTHROUGH);
-        DriveTrain.turnPID(.27,true,((3 *Math.PI)/2.0));
+        DriveTrain.turnPID(.27,false,((Math.PI)/2.0));
         Grabber.setPosition(Grabber.POSITIONS.CLAMPDOWN);
         //back up to build plate
         DriveTrain.setPower(-.3,-.3);
@@ -171,20 +161,20 @@ public class RedAuto extends LinearOpMode {
         //toggle foundation hooks
 
         Robot.reset();
-        DriveTrain.turnPID(.5, true, (7.0*Math.PI)/4.0, 500);
-        DriveTrain.setPower(.5,.5);
-        Thread.sleep(400);
+        DriveTrain.turnPID(.5, false, (Math.PI)/4.0, 500);
+        DriveTrain.setPower(.4,.4);
+        Thread.sleep(300);
         DriveTrain.stopMotors();
-        DriveTrain.turnPID(.5, true, (3*Math.PI)/2.0, 2000);
+        DriveTrain.turnPID(.5, false, (Math.PI)/2.0, 2000);
         FoundationHook.toggle();
         Thread.sleep(300);
         DriveTrain.setPower(-.3,-.3);
-        Thread.sleep(600);
+        Thread.sleep(450);
         DriveTrain.stopMotors();
-        Thread.sleep(1000);
 
 
-        pp.reset(Paths.getParkRed(), false);
+
+        pp.reset(Paths.getParkBlue(), false);
 
         while (!pp.isDone() && opModeIsActive()) {
             lastT = t.seconds() - lastT;
@@ -192,23 +182,5 @@ public class RedAuto extends LinearOpMode {
             List<Double> powers = pp.followPath(new Position(rloc.getX(), rloc.getY(), rloc.getDdx()), rloc.getDx(), rloc.getDy(), lastT);
             DriveTrain.setPower(powers.get(0), powers.get(1));
         }
-//        DriveTrain.turnPID(.3, false, Math.PI, 3000);
-//        Thread.sleep(500);
-//
-//        Robot.manipMachine();
-//        Thread.sleep(1000);
-//
-//        FoundationHook.toggle();
-//        Thread.sleep(500);
-//
-//        DriveTrain.setPower(-0.2,-0.2);
-//        Thread.sleep(1200);
-//        DriveTrain.stopMotors();
-
-
-
-
-
-
     }
 }

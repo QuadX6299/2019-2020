@@ -21,7 +21,7 @@ class TankController constructor(val co : PIDCoefficients, val kv : Double, val 
     }
 
     fun calc(v : Double) : Double {
-        val timern = clock.seconds()
+        val timern = clock.seconds()*1000
         val e = error(v)
         return if (lastTime.isNaN()) {
             eprev = e
@@ -39,16 +39,9 @@ class TankController constructor(val co : PIDCoefficients, val kv : Double, val 
 
             eprev = e
             lastTime = timern
-            val pid = co.p * e + co.d * deriv + kv * v + ka * a
-            Op.telemetry.addData("e ", e);
-            Op.telemetry.addData("deriv ", deriv)
-            Op.telemetry.addData("v ", v)
-            Op.telemetry.addData("a ", a)
-            if (pid.fuzzyEquals(0.0, 1.0.pow(-6))) {
-                return 0.0
-            } else {
-                return pid
-            }
+            vprev = v
+            val pid = (co.p * e) + co.d * deriv + kv * v + ka * a
+            return pid
         }
     }
 
