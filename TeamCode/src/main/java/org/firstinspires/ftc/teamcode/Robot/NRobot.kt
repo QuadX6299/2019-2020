@@ -71,6 +71,8 @@ class NRobot constructor(val opMode: OpMode) {
         sixArcadeArc()
     }
 
+
+
     fun g2() {
         if (opMode.gamepad2.dpad_up && g2prev.dpad_up != opMode.gamepad2.dpad_up) {
             Grabber.toggleHorn()
@@ -190,13 +192,13 @@ class NRobot constructor(val opMode: OpMode) {
 
             }
             DriveTrain.fl.power = FL
-            DriveTrain.ml.power = FL
+            //DriveTrain.ml.power = FL
 
             DriveTrain.fr.power = FR
             DriveTrain.bl.power = BL
 
             DriveTrain.br.power = BR
-            DriveTrain.mr.power = BR
+            //DriveTrain.mr.power = BR
         }
         else {
             DriveTrain.setPower(0.0,0.0)

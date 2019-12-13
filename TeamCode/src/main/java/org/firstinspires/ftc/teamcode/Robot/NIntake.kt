@@ -9,12 +9,16 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import org.openftc.revextensions2.ExpansionHubMotor
 
 class NIntake constructor(op : OpMode) {
-    lateinit var intakeMotor : ExpansionHubMotor
+    lateinit var intakeMotorLeft : ExpansionHubMotor
+    lateinit var intakeMotorRight : ExpansionHubMotor
 
     init {
-        intakeMotor = op.hardwareMap.get(ExpansionHubMotor::class.java, "int")
-        intakeMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        intakeMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        intakeMotorLeft = op.hardwareMap.get(ExpansionHubMotor::class.java, "intakeLeft")
+        intakeMotorRight = op.hardwareMap.get(ExpansionHubMotor::class.java, "intakeRight")
+        intakeMotorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        intakeMotorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        intakeMotorLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        intakeMotorRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
     }
 
     fun powerTime(power : Double, timeout: Double){
@@ -23,7 +27,8 @@ class NIntake constructor(op : OpMode) {
         time.reset()
 
         while (time.milliseconds() < timeout) {
-            intakeMotor.power = power
+            intakeMotorLeft.power = power
+            intakeMotorRight.power = -power
         }
     }
 
@@ -47,11 +52,13 @@ class NIntake constructor(op : OpMode) {
     }
 
     fun power (power: Double){
-        intakeMotor.power = power
+        intakeMotorLeft.power = power
+        intakeMotorRight.power = -power
     }
 
 
     fun stopIntake(){
-        intakeMotor.power = 0.0
+        intakeMotorLeft.power = 0.0
+        intakeMotorRight.power = 0.0
     }
 }

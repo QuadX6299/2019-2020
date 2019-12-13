@@ -2,21 +2,32 @@ package org.firstinspires.ftc.teamcode.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.openftc.revextensions2.ExpansionHubMotor
 
 class NLift constructor(Op : OpMode) {
-    val lift : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "lift")
+    val liftL : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "liftL")
+    val liftR : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "liftR")
 
     init {
-        lift.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        lift.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        liftL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        liftR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        liftL.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        liftR.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        liftR.direction = DcMotorSimple.Direction.REVERSE
+
+
     }
 
     fun power(power : Double) {
-        lift.power = power
+        liftL.power = power
+        liftR.power = power
     }
 
     fun stopLift() {
-        lift.power = 0.0
+        liftL.power = 0.0
+        liftR.power = 0.0
     }
 }
