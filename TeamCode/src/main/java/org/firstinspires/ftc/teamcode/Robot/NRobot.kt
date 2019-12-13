@@ -108,7 +108,7 @@ class NRobot constructor(val opMode: OpMode) {
                 Grabber.setAssemblyPosition(NGrabber.POSITIONS.CAP)
             },750)
 
-        }
+        } 
         g2prev.copy(opMode.gamepad2)
     }
 
