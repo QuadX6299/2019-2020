@@ -21,12 +21,10 @@ class NRobot constructor(val opMode: OpMode) {
     var g2prev : Gamepad = Gamepad()
 
     val dt get() = DriveTrain
-    val grabber get() = Grabber
     val intake get() = Intake
     val lift get() = Lift
     val foundation get() = FoundationHook
     val cap get() = Cap
-    val bhorn get() = Bhorn
     val companion get() = Modules
 
     companion object Modules {
@@ -38,19 +36,20 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var OSAsync : Handler
         lateinit var Generator : NPathBuilder
         lateinit var Cap : NCap
-        lateinit var Bhorn : NBhorn
+        lateinit var Gantry : NGantry
 
         fun init(Op : OpMode) {
             DriveTrain = NDriveTrain(Op)
-            Grabber = NGrabber(Op)
+            //Grabber = NGrabber(Op)
+            Gantry = NGantry(Op)
             Intake = NIntake(Op)
             Lift = NLift(Op)
             FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
-            Bhorn = NBhorn(Op)
+            //Bhorn = NBhorn(Op)
             IMU.init(Op)
-            Cap = NCap(Op)
+            //Cap = NCap(Op)
         }
     }
 
@@ -71,6 +70,18 @@ class NRobot constructor(val opMode: OpMode) {
         sixArcadeArc()
     }
 
+    fun newG2(){
+        if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.COLLECTION)
+        } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.TRANSITION)
+        } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.GANTRYOUT)
+        } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.DEPOSIT)
+        }
+        g2prev.copy(opMode.gamepad2)
+    }
 
 
     fun g2() {
@@ -113,10 +124,7 @@ class NRobot constructor(val opMode: OpMode) {
     }
 
     fun g1() {
-        if (opMode.gamepad1.dpad_down && g1prev.dpad_down != opMode.gamepad1.dpad_down) {
-            Grabber.toggleGrabber()
-            Grabber.setAssemblyPosition(NGrabber.POSITIONS.HORNDOWN)
-        } else if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {
+        if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {
             flip *= -1.0
         } else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
             FoundationHook.toggle()
@@ -137,8 +145,8 @@ class NRobot constructor(val opMode: OpMode) {
 
     fun intakeControls() {
         when {
-            opMode.gamepad1.left_bumper -> Intake.power(1.0)
-            opMode.gamepad1.right_bumper -> Intake.power(-1.0)
+            opMode.gamepad1.left_bumper -> Intake.power(-1.0)
+            opMode.gamepad1.right_bumper -> Intake.power(1.0)
             else -> Intake.power(0.0)
         }
     }
