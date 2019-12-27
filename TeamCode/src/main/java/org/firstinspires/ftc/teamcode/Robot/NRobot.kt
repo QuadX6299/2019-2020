@@ -23,34 +23,29 @@ class NRobot constructor(val opMode: OpMode) {
     val dt get() = DriveTrain
     val intake get() = Intake
     val lift get() = Lift
-    //val gantry get() = Gantry
-    //val foundation get() = FoundationHook
-    //val cap get() = Cap
+    val gantry get() = Gantry
+//    val foundation get() = FoundationHook
     val companion get() = Modules
 
     companion object Modules {
-        lateinit var DriveTrain : NDriveTrain
-        //lateinit var Grabber : NGrabber
+        lateinit var DriveTrain : NDriveTrain4Mecanum
         lateinit var Intake : NIntake
         lateinit var Lift : NLift
         //lateinit var FoundationHook : NFoundationHook
         lateinit var OSAsync : Handler
         lateinit var Generator : NPathBuilder
         //lateinit var Cap : NCap
-        //lateinit var Gantry : NGantry
+        lateinit var Gantry : NGantry
 
         fun init(Op : OpMode) {
-            DriveTrain = NDriveTrain(Op)
-            //Grabber = NGrabber(Op)
-            //Gantry = NGantry(Op)
+            DriveTrain = NDriveTrain4Mecanum(Op)
+            Gantry = NGantry(Op)
             Intake = NIntake(Op)
             Lift = NLift(Op)
             //FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
-            //Bhorn = NBhorn(Op)
             IMU.init(Op)
-            //Cap = NCap(Op)
         }
     }
 
@@ -65,64 +60,24 @@ class NRobot constructor(val opMode: OpMode) {
 
     fun controls() {
         g1()
-        //g2()
+        newG2()
         intakeControls()
         liftControls()
         sixArcadeArc()
     }
 
-//    fun newG2(){
-//        if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
-//            Gantry.setAssemblyPosition(NGantry.POSITIONS.COLLECTION)
-//        } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
-//            Gantry.setAssemblyPosition(NGantry.POSITIONS.TRANSITION)
-//        } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y){
-//            Gantry.setAssemblyPosition(NGantry.POSITIONS.GANTRYOUT)
-//        } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
-//            Gantry.setAssemblyPosition(NGantry.POSITIONS.DEPOSIT)
-//        }
-//        g2prev.copy(opMode.gamepad2)
-//    }
-
-
-//    fun g2() {
-//        if (opMode.gamepad2.dpad_up && g2prev.dpad_up != opMode.gamepad2.dpad_up) {
-//            Grabber.toggleHorn()
-//        } else if (opMode.gamepad2.dpad_down && g2prev.dpad_down != opMode.gamepad2.dpad_down) {
-//            Grabber.toggleGrabber()
-//
-//        } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y) {
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.HORNDOWN)
-//            OSAsync.postDelayed({
-//                Grabber.setAssemblyPosition(NGrabber.POSITIONS.CLAMPDOWN)
-//            }, 1000)
-//
-//        } else if (opMode.gamepad2.b && g2prev.b != opMode.gamepad2.b) {
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.TRANSITION)
-//            OSAsync.postDelayed({
-//                Grabber.setAssemblyPosition(NGrabber.POSITIONS.VERTICALDEPO)
-//            },750)
-//
-//        } else if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a) {
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.HORIZONTALDEPO)
-//
-//        } else if (opMode.gamepad2.x && g2prev.x != opMode.gamepad2.x) {
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.VERTICALDEPO)
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.DROP)
-//            OSAsync.postDelayed({
-//                Grabber.setAssemblyPosition(NGrabber.POSITIONS.COLLECTION)
-//            }, 500)
-//        } else if (opMode.gamepad2.dpad_right && g2prev.dpad_right != opMode.gamepad2.dpad_right){
-//            Cap.toggle()
-//        } else if (opMode.gamepad2.dpad_left && g2prev.dpad_left != opMode.gamepad2.dpad_left){
-//            Grabber.setAssemblyPosition(NGrabber.POSITIONS.TRANSITION)
-//            OSAsync.postDelayed({
-//                Grabber.setAssemblyPosition(NGrabber.POSITIONS.CAP)
-//            },750)
-//
-//        }
-//        g2prev.copy(opMode.gamepad2)
-//    }
+    fun newG2(){
+        if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.COLLECTION)
+        } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.TRANSITION)
+        } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.GANTRYOUT)
+        } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
+            Gantry.setAssemblyPosition(NGantry.POSITIONS.DEPOSIT)
+        }
+        g2prev.copy(opMode.gamepad2)
+    }
 
     fun g1() {
         if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {

@@ -13,8 +13,8 @@ class NIntake constructor(op : OpMode) {
     lateinit var intakeMotorRight : ExpansionHubMotor
 
     init {
-        intakeMotorLeft = op.hardwareMap.get(ExpansionHubMotor::class.java, "intakeLeft")
-        intakeMotorRight = op.hardwareMap.get(ExpansionHubMotor::class.java, "intakeRight")
+        intakeMotorLeft = op.hardwareMap.get(ExpansionHubMotor::class.java, "il")
+        intakeMotorRight = op.hardwareMap.get(ExpansionHubMotor::class.java, "ir")
         intakeMotorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         intakeMotorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         intakeMotorLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT

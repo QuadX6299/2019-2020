@@ -1,18 +1,21 @@
-package org.firstinspires.ftc.teamcode.OpMode;
+package org.firstinspires.ftc.teamcode.Op;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.NRobot;
 
-@TeleOp(name = "|||Main|||", group = "TeleOp")
-public class TeleOPOdometry extends OpMode {
-    NRobot main;
+@TeleOp (name = "pogchamp", group = "TeleOp")
+public class Controls extends OpMode {
+    NRobot r;
+
+    @Override
     public void init() {
-        main = new NRobot(this);
+        r = new NRobot(this);
     }
 
+    @Override
     public void loop() {
-        main.controls();
+        r.controls();
     }
 }

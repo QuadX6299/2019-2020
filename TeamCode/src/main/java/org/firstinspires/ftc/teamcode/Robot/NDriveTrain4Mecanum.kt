@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.lib.Extensions.fuzzyEquals
 import org.firstinspires.ftc.teamcode.lib.Extensions.plus
 import org.firstinspires.ftc.teamcode.lib.Extensions.toVector
 import org.firstinspires.ftc.teamcode.lib.Path.NPathFollower
-import org.firstinspires.ftc.teamcode.lib.Path.PathFollower
 import org.firstinspires.ftc.teamcode.lib.Path.Paths
 import org.firstinspires.ftc.teamcode.lib.Path.TankController
 import org.openftc.revextensions2.ExpansionHubEx
@@ -92,6 +91,21 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
 
     fun Double.rpmToVel() : Double = (this * Constants.GEAR_RATIO * 2.0 * PI * Constants.WHEEL_RAD) / 60.0
 
+    fun List<ExpansionHubMotor>.runToPose(encoder : Double) {
+        this.forEach {
+            it.mode = DcMotor.RunMode.RUN_TO_POSITION
+            it.targetPosition = encoder.toInt()
+        }
+    }
+
+    fun motorsBusy() : Boolean {
+        var busy = true
+        all.forEach {
+            busy = busy && it.isBusy
+        }
+        return busy
+    }
+
     fun getMaxRpm() : Double {
         return motorType.maxRPM * motorType.achieveableMaxRPMFraction
     }
@@ -136,19 +150,6 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         }
 
         return listOf(leftSum / 3.0, rightSum / 3.0)
-    }
-
-    fun getAllReadings() : List<Double> {
-        val readings : MutableList<Double> = mutableListOf()
-        val bulkL : RevBulkData = hubL.bulkInputData
-        val bulkR : RevBulkData = hubR.bulkInputData
-        left.forEach {
-            readings.add(bulkL.getMotorCurrentPosition(it).toDouble().e2i())
-        }
-        right.forEach {
-            readings.add(bulkR.getMotorCurrentPosition(it).toDouble().e2i())
-        }
-        return readings
     }
 
     fun resetEncoders() {
@@ -246,21 +247,18 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         }
     }
 
-    fun encoderDrive(inches : Double) {
-        var (lc,rc) = getEncoderAverage()
-        val targetL = lc + inches.i2e()
-        val targetR = rc + inches.i2e()
-
-        while (!lc.fuzzyEquals(targetL, 20.0) && !rc.fuzzyEquals(targetR, 20.0) && !Thread.interrupted()) {
+    fun encoderDrive(inches : Double, power : Double) {
+        val (l,r) = getEncoderAverage()
+        val newL = l + inches.i2e()
+        val newR = r + inches.i2e()
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+        left.runToPose(newL)
+        right.runToPose(newR)
+        setPower(power, power)
+        while (motorsBusy()) {
             val enc = getEncoderAverage()
-            lc = enc[0]
-            rc = enc[1]
-            val power = if (targetL > lc) {
-                .5
-            } else {
-                -.5
-            }
-            setPower(power,power)
+            Op.telemetry.addData("Current Distance", (enc[0] + enc[1]) / 2)
         }
+        setPower(0.0,0.0)
     }
 }

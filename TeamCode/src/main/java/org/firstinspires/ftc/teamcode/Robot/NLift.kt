@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.openftc.revextensions2.ExpansionHubMotor
 
 class NLift constructor(Op : OpMode) {
-    val liftL : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "liftL")
-    val liftR : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "liftR")
+    val liftL : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "ll")
+    val liftR : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "lr")
 
     init {
         liftL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -15,9 +15,6 @@ class NLift constructor(Op : OpMode) {
 
         liftL.mode = DcMotor.RunMode.RUN_USING_ENCODER
         liftR.mode = DcMotor.RunMode.RUN_USING_ENCODER
-
-        liftR.direction = DcMotorSimple.Direction.REVERSE
-
 
     }
 

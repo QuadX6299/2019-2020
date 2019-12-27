@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot
 
+import android.os.Handler
+import android.os.Looper
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.openftc.revextensions2.ExpansionHubServo
 
@@ -16,9 +18,11 @@ class NGantry constructor(Op : OpMode) {
     }
 
     fun origin() {
-        gantry.position = 0.0
-        frontClampOpen()
         backClampClose()
+        gantryIn()
+        Handler(Looper.getMainLooper()).postDelayed({
+            frontClampOpen()
+        }, 700)
     }
 
 
@@ -55,23 +59,27 @@ class NGantry constructor(Op : OpMode) {
 
 
     fun frontClampOpen(){
-        frontClamp.position = 1.0
+        frontClamp.position = .52
     }
 
     fun frontClampClose(){
-        frontClamp.position = 0.0
+        frontClamp.position = 0.1
     }
 
     fun backClampOpen(){
-        frontClamp.position = 1.0
+        backClamp.position = .1
     }
 
     fun backClampClose(){
-        frontClamp.position = 0.0
+        backClamp.position = 0.56
     }
 
     fun gantryOut() {
-        gantry.position = 1.0
+        gantry.position = .1
+    }
+
+    fun gantryIn() {
+        gantry.position = .8
     }
 
 
