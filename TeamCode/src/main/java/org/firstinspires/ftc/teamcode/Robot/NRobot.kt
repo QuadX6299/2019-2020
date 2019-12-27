@@ -31,7 +31,7 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var DriveTrain : NDriveTrain4Mecanum
         lateinit var Intake : NIntake
         lateinit var Lift : NLift
-        //lateinit var FoundationHook : NFoundationHook
+        lateinit var FoundationHook : NFoundationHook
         lateinit var OSAsync : Handler
         lateinit var Generator : NPathBuilder
         //lateinit var Cap : NCap
@@ -42,7 +42,7 @@ class NRobot constructor(val opMode: OpMode) {
             Gantry = NGantry(Op)
             Intake = NIntake(Op)
             Lift = NLift(Op)
-            //FoundationHook = NFoundationHook(Op)
+            FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
             IMU.init(Op)
@@ -83,9 +83,9 @@ class NRobot constructor(val opMode: OpMode) {
         if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {
             flip *= -1.0
         }
-//        } else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
-//            FoundationHook.toggle()
-//        }
+        else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
+            FoundationHook.toggle()
+        }
         g1prev.copy(opMode.gamepad1)
     }
 

@@ -14,19 +14,19 @@ class NFoundationHook constructor(Op : OpMode) {
     }
 
     fun origin() {
-        HookLeft.position = 1.0
-        HookRight.position = 0.0
+        HookLeft.position = 0.33
+        HookRight.position = 0.52
     }
 
     fun down() {
         down = true
-        HookLeft.position = 0.0
-        HookRight.position = 1.0
+        origin()
     }
 
     fun up() {
         down = false
-        origin()
+        HookLeft.position = 0.7
+        HookRight.position = 0.15
     }
 
     fun toggle() {
