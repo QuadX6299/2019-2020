@@ -97,10 +97,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (729 * .416).toInt()
-        val right: Int = (1850 * .416).toInt()
-        val bottom: Int = (800 * .416).toInt()
-        val top: Int = (550 * .416).toInt()
+        val left: Int = (0 * .416).toInt()
+        val right: Int = (1070 * .416).toInt()
+        val bottom: Int = (170 * .416).toInt()
+        val top: Int = (0 * .416).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {
@@ -147,8 +147,6 @@ object NewBitMap {
 
         return "Cant Find Position"
     }
-
-
 
     @Throws(InterruptedException::class)
     @JvmStatic
@@ -214,6 +212,65 @@ object NewBitMap {
         return "Can't find position"
 
 //        return avgX
+    }
+
+    @Throws(InterruptedException::class)
+    @JvmStatic
+    fun getAvgXBlue(): Double {
+        val bitmap = getImage()
+        val xValues = ArrayList<Int>()
+        //x : 800
+        //y : 448
+
+
+
+
+        //counters for whether a pixel is gold, otherwise assign it to black
+        var black = 0
+        var gold = 0
+        val left: Int = (175 * .416).toInt()
+        val right: Int = (1300 * .416).toInt()
+        val bottom: Int = (200 * .416).toInt()
+        val top: Int = (0 * .416).toInt()
+        //col range 145..830
+        //row range 110..320
+        for (colNum in left..right) {
+
+            // scan rows 120-240 to block out cubes from crater
+            //NEED TO TEST WHICH ROWS TO LOOP THROUGH TO GET MOST EFFICIENT RESULT
+            for (rowNum in top..bottom) {
+                val pixel = bitmap.getPixel(colNum, rowNum)
+
+                // receive R, G, and B values for each pixel
+                val redPixel = red(pixel)
+                val greenPixel = green(pixel)
+                val bluePixel = blue(pixel)
+
+                //checking if the pixel meets the thresholds to be assigned a gold value
+                if (redPixel <= 25 && greenPixel <= 25 && bluePixel <= 25) {
+                    black++
+                    xValues.add(colNum)
+                }
+            }
+
+        }
+
+        var avgX = 0.0
+        for (x in xValues) {
+            avgX += x
+        }
+//
+        avgX /= xValues.size
+
+
+        //assigning a boolean that determines whether or not the specific frame is black
+        //if there are more black pixels, it is black, otherwise it's gold
+        //BLACK IS TRUE, GOLD IS FALSE
+
+
+
+
+        return avgX
     }
 
 
