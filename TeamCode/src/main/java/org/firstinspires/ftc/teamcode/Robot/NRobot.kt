@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.PIDCoefficients
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.HerculesLibraries.Vision.NewBitMap
 import org.firstinspires.ftc.teamcode.Robot.Sensors.IMU
 import org.firstinspires.ftc.teamcode.lib.Coords.State
 import org.firstinspires.ftc.teamcode.lib.Extensions.clip
@@ -27,6 +28,7 @@ class NRobot constructor(val opMode: OpMode) {
 //    val foundation get() = FoundationHook
     val companion get() = Modules
 
+
     companion object Modules {
         lateinit var DriveTrain : NDriveTrain4Mecanum
         lateinit var Intake : NIntake
@@ -36,6 +38,7 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var Generator : NPathBuilder
         //lateinit var Cap : NCap
         lateinit var Gantry : NGantry
+        lateinit var Vision : NVision
 
         fun init(Op : OpMode) {
             DriveTrain = NDriveTrain4Mecanum(Op)
@@ -45,6 +48,7 @@ class NRobot constructor(val opMode: OpMode) {
             FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
+            Vision = NVision(Op)
             IMU.init(Op)
         }
     }
@@ -90,11 +94,11 @@ class NRobot constructor(val opMode: OpMode) {
     }
 
     fun liftControls() {
-        if (opMode.gamepad2.right_stick_y > 0.05) {
+        if (opMode.gamepad2.right_stick_y > 0.1) {
             Lift.power(opMode.gamepad2.left_stick_y.toDouble() * -1.0)
             //this is up
-        } else if (opMode.gamepad2.right_stick_y < 0.05) {
-            Lift.power(opMode.gamepad2.left_stick_y.toDouble() * -1.0)
+        } else if (opMode.gamepad2.right_stick_y < 0.1) {
+            Lift.power(opMode.gamepad2.left_stick_y.toDouble() *  -1.0 )
         } else {
             Lift.power(0.0)
         }

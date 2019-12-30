@@ -17,5 +17,7 @@ public class Controls extends OpMode {
     @Override
     public void loop() {
         r.controls();
+        telemetry.addData("Lift:", gamepad2.left_stick_y);
+        telemetry.update();
     }
 }

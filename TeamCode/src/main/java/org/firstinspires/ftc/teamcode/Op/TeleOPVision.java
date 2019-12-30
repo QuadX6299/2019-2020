@@ -5,20 +5,21 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.HerculesLibraries.Vision.NewBitMap;
 import org.firstinspires.ftc.teamcode.Robot.NRobot;
+import org.firstinspires.ftc.teamcode.Robot.NVision;
 
 @TeleOp (name = "visionTest", group = "TeleOp")
 public class TeleOPVision extends OpMode {
 
-    NewBitMap n;
+    NRobot r;
     @Override
     public void init() {
-        n.init(this);
+        r = new NRobot(this);
     }
 
     @Override
     public void loop() {
         try {
-            telemetry.addData("Position: ", NewBitMap.getAvgXBlue());
+            telemetry.addData("Position: ", NewBitMap.blueVision());
             telemetry.update();
         } catch (InterruptedException e) {
 

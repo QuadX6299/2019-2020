@@ -28,24 +28,9 @@ object NewBitMap {
     // importing vuforia class for taking an image
     lateinit var vuforia: VuforiaLocalizer
     lateinit var opMode: OpMode
-    val BL_RED = 160
-    val BL_GREEN = 160
-    val BL_BLUE = 160
 
-    fun init(op: OpMode) {
-        opMode = op
-        val cameraMonitorViewId = opMode.hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.packageName)
 
-        val params = Parameters(cameraMonitorViewId)
 
-        params.vuforiaLicenseKey = "AQvLCbX/////AAABmTGnnsC2rUXvp1TAuiOSac0ZMvc3GKI93tFoRn4jPzB3uSMiwj75PNfUU6MaVsNZWczJYOep8LvDeM/3hf1+zO/3w31n1qJTtB2VHle8+MHWNVbNzXKLqfGSdvXK/wYAanXG2PBSKpgO1Fv5Yg27eZfIR7QOh7+J1zT1iKW/VmlsVSSaAzUSzYpfLufQDdE2wWQYrs8ObLq2kC37CeUlJ786gywyHts3Mv12fWCSdTH5oclkaEXsVC/8LxD1m+gpbRc2KC0BXnlwqwA2VqPSFU91vD8eCcD6t2WDbn0oJas31PcooBYWM6UgGm9I2plWazlIok72QG/kOYDh4yXOT4YXp1eYh864e8B7mhM3VclQ"
-        params.cameraName = op.hardwareMap.get(WebcamName::class.java, "Webcam 1")
-        vuforia = ClassFactory.getInstance().createVuforia(params)
-        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true) //enables RGB565 format for the image
-        vuforia.frameQueueCapacity = 4 //tells VuforiaLocalizer to only store one frame at a time
-        vuforia.enableConvertFrameToBitmap()
-
-    }
 
 
     @Throws(InterruptedException::class)
@@ -150,7 +135,7 @@ object NewBitMap {
 
     @Throws(InterruptedException::class)
     @JvmStatic
-    fun blueVision(): String {
+    fun getAvgXRed(): Double {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
         //x : 800
@@ -162,10 +147,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (729 * .416).toInt()
-        val right: Int = (1850 * .416).toInt()
-        val bottom: Int = (800 * .416).toInt()
-        val top: Int = (550 * .416).toInt()
+        val left: Int = (0 * .416).toInt()
+        val right: Int = (1070 * .416).toInt()
+        val bottom: Int = (170 * .416).toInt()
+        val top: Int = (0 * .416).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {
@@ -202,11 +187,71 @@ object NewBitMap {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 500){
+
+
+        return avgX
+    }
+
+
+    @Throws(InterruptedException::class)
+    @JvmStatic
+    fun blueVision(): String {
+        val bitmap = getImage()
+        val xValues = ArrayList<Int>()
+        //x : 800
+        //y : 448
+
+
+
+
+        //counters for whether a pixel is gold, otherwise assign it to black
+        var black = 0
+        var gold = 0
+        val left: Int = (175 * .416).toInt()
+        val right: Int = (1300 * .416).toInt()
+        val bottom: Int = (200 * .416).toInt()
+        val top: Int = (0 * .416).toInt()
+        //col range 145..830
+        //row range 110..320
+        for (colNum in left..right) {
+
+            // scan rows 120-240 to block out cubes from crater
+            //NEED TO TEST WHICH ROWS TO LOOP THROUGH TO GET MOST EFFICIENT RESULT
+            for (rowNum in top..bottom) {
+                val pixel = bitmap.getPixel(colNum, rowNum)
+
+                // receive R, G, and B values for each pixel
+                val redPixel = red(pixel)
+                val greenPixel = green(pixel)
+                val bluePixel = blue(pixel)
+
+                //checking if the pixel meets the thresholds to be assigned a gold value
+                if (redPixel <= 25 && greenPixel <= 25 && bluePixel <= 25) {
+                    black++
+                    xValues.add(colNum)
+                }
+            }
+
+        }
+
+        var avgX = 0.0
+        for (x in xValues) {
+            avgX += x
+        }
+//
+        avgX /= xValues.size
+
+
+        //assigning a boolean that determines whether or not the specific frame is black
+        //if there are more black pixels, it is black, otherwise it's gold
+        //BLACK IS TRUE, GOLD IS FALSE
+
+
+        if (avgX <= 250){
             return "L"
-        } else if (avgX >= 515 && avgX <= 615){
+        } else if (avgX >= 300 && avgX <= 360){
             return  "C"
-        } else if (avgX >= 625){
+        } else if (avgX >= 400){
             return "R"
         }
         return "Can't find position"
@@ -272,6 +317,9 @@ object NewBitMap {
 
         return avgX
     }
+
+
+
 
 
     fun vufConvertToBitmap(frame: Frame): Bitmap? {
