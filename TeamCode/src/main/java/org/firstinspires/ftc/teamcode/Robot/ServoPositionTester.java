@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "IntakeTest", group = "TeleOp")
-public class IntakeTest extends LinearOpMode {
+@TeleOp(name = "ServoPositionTester", group = "TeleOp")
+public class ServoPositionTester extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Servo pog = hardwareMap.get(Servo.class, "testS");

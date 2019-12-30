@@ -132,8 +132,10 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
             rightSum += bulkR.getMotorCurrentPosition(it).toDouble().e2i()
         }
 
-        return listOf(leftSum / 3.0, rightSum / 3.0)
+        return listOf(leftSum / 2.0, rightSum / 2.0)
     }
+
+
 
     fun getVelocityAverage() : List<Double> {
         var leftSum : Double = 0.0
@@ -257,8 +259,14 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         setPower(power, power)
         while (motorsBusy()) {
             val enc = getEncoderAverage()
-            Op.telemetry.addData("Current Distance", (enc[0] + enc[1]) / 2)
+            Op.telemetry.addData("Current Distance", (enc[0] + enc[1]) / 2.0)
         }
         setPower(0.0,0.0)
     }
+
+
+
+
+
+
 }
