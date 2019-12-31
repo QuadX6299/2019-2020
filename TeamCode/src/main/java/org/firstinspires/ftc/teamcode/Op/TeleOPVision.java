@@ -19,7 +19,7 @@ public class TeleOPVision extends OpMode {
     @Override
     public void loop() {
         try {
-            telemetry.addData("Position: ", NewBitMap.blueVision());
+            telemetry.addData("Position: ", NewBitMap.redVision());
             telemetry.update();
         } catch (InterruptedException e) {
 

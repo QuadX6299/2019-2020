@@ -122,11 +122,11 @@ object NewBitMap {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 375){
+        if (avgX <= 150){
             return "L"
-        } else if (avgX >= 410 && avgX <= 550){
+        } else if (avgX >= 200 && avgX <=300){
             return  "C"
-        } else if (avgX >= 600){
+        } else if (avgX >= 380){
             return "R"
         }
 
