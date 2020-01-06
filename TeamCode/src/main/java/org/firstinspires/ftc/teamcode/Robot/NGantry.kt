@@ -18,11 +18,13 @@ class NGantry constructor(Op : OpMode) {
     }
 
     fun origin() {
-        backClampClose()
         gantryIn()
         Handler(Looper.getMainLooper()).postDelayed({
             frontClampOpen()
         }, 700)
+        Handler(Looper.getMainLooper()).postDelayed({
+            backClampClose()
+        }, 2000)
     }
 
 
@@ -58,6 +60,7 @@ class NGantry constructor(Op : OpMode) {
 
 
 
+
     fun frontClampOpen(){
         frontClamp.position = .52
     }
@@ -75,7 +78,7 @@ class NGantry constructor(Op : OpMode) {
     }
 
     fun gantryOut() {
-        gantry.position = .1
+        gantry.position = .25
     }
 
     fun gantryIn() {

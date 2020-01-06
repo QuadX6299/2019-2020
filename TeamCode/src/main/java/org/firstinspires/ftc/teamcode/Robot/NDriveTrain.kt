@@ -34,18 +34,18 @@ class NDriveTrain constructor(val Op : OpMode) {
 
 
 
-    val fl : ExpansionHubMotor
-    val bl : ExpansionHubMotor
-    val fr : ExpansionHubMotor
-    val br : ExpansionHubMotor
+    val fl : DcMotor
+    val bl : DcMotor
+    val fr : DcMotor
+    val br : DcMotor
 
     init {
 
 
-        fl = Op.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
-        fr =  Op.hardwareMap.get(ExpansionHubMotor::class.java, "fr")
-        bl =  Op.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
-        br = Op.hardwareMap.get(ExpansionHubMotor::class.java, "br")
+        fl = Op.hardwareMap.get(DcMotor::class.java, "fl")
+        fr =  Op.hardwareMap.get(DcMotor::class.java, "fr")
+        bl =  Op.hardwareMap.get(DcMotor::class.java, "bl")
+        br = Op.hardwareMap.get(DcMotor::class.java, "br")
 
         fr.direction = DcMotorSimple.Direction.REVERSE
         br.direction = DcMotorSimple.Direction.REVERSE
@@ -102,6 +102,8 @@ class NDriveTrain constructor(val Op : OpMode) {
         if (br.currentPosition == 0) {
             countZeros++
         }
+
+
 
         return if (countZeros == 4.0) {
             0.0

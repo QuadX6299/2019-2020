@@ -30,7 +30,7 @@ class NRobot constructor(val opMode: OpMode) {
 
 
     companion object Modules {
-        lateinit var DriveTrain : NDriveTrain4Mecanum
+        lateinit var DriveTrain : NDriveTrain
         lateinit var Intake : NIntake
         lateinit var Lift : NLift
         lateinit var FoundationHook : NFoundationHook
@@ -41,7 +41,7 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var Vision : NVision
 
         fun init(Op : OpMode) {
-            DriveTrain = NDriveTrain4Mecanum(Op)
+            DriveTrain = NDriveTrain(Op)
             Gantry = NGantry(Op)
             Intake = NIntake(Op)
             Lift = NLift(Op)
@@ -79,6 +79,8 @@ class NRobot constructor(val opMode: OpMode) {
             Gantry.setAssemblyPosition(NGantry.POSITIONS.GANTRYOUT)
         } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
             Gantry.setAssemblyPosition(NGantry.POSITIONS.DEPOSIT)
+        } else if (opMode.gamepad2.x && g2prev.x != opMode.gamepad2.x){
+            Gantry.frontClampOpen()
         }
         g2prev.copy(opMode.gamepad2)
     }
@@ -95,10 +97,10 @@ class NRobot constructor(val opMode: OpMode) {
 
     fun liftControls() {
         if (opMode.gamepad2.right_stick_y > 0.1) {
-            Lift.power(opMode.gamepad2.left_stick_y.toDouble() * -1.0)
+            Lift.power(opMode.gamepad2.left_stick_y.toDouble())
             //this is up
         } else if (opMode.gamepad2.right_stick_y < 0.1) {
-            Lift.power(opMode.gamepad2.left_stick_y.toDouble() *  -1.0 )
+            Lift.power(opMode.gamepad2.left_stick_y.toDouble())
         } else {
             Lift.power(0.0)
         }
@@ -139,51 +141,52 @@ class NRobot constructor(val opMode: OpMode) {
 
     fun sixArcadeArc() {
         //checking for valid range to apply power (has to give greater power than .1)
-        if (((abs(hypot(opMode.gamepad1.left_stick_x, opMode.gamepad1.left_stick_y))) > .1) ||
-                abs(atan2(opMode.gamepad1.left_stick_y, opMode.gamepad1.left_stick_x) - PI / 4) > .1) {
+        if (Math.abs(Math.hypot(opMode.gamepad1.left_stick_x.toDouble(), opMode.gamepad1.left_stick_y.toDouble())) > .1 || Math.abs(Math.atan2(opMode.gamepad1.left_stick_y.toDouble(), opMode.gamepad1.left_stick_x.toDouble()) - Math.PI / 4) > .1) {
 
-            val r : Double = hypot(opMode.gamepad1.left_stick_x, opMode.gamepad1.left_stick_y).toDouble();
-            val theta : Double = atan2(opMode.gamepad1.left_stick_y, -opMode.gamepad1.left_stick_x) - PI / 4;
-            val rightX : Double = -opMode.gamepad1.right_stick_x.toDouble();
+            val r = Math.hypot(opMode.gamepad1.left_stick_x.toDouble(), opMode.gamepad1.left_stick_y.toDouble())
+            val theta = Math.atan2(opMode.gamepad1.left_stick_y.toDouble(), -opMode.gamepad1.left_stick_x.toDouble()) - Math.PI / 4
+            val rightX = -opMode.gamepad1.right_stick_x.toDouble()
 
             //as per unit circle cos gives x, sin gives you y
-            var FL : Double = r * cos(theta) + rightX
-            var FR : Double = r * sin(theta) - rightX
-            var BL : Double = r * sin(theta) + rightX
-            var BR : Double = r * cos(theta) - rightX
+            var FL = r * Math.cos(theta) + rightX
+            var FR = r * Math.sin(theta) - rightX
+            var BL = r * Math.sin(theta) + rightX
+            var BR = r * Math.cos(theta) - rightX
 
             //make sure you don't try and give power bigger than 1
-            if (((abs(FL) > 1) || (abs(BL) > 1)) || ((abs(FR) > 1) || (abs(BR) > 1))) {
-                FL /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
-                BL /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
-                FR /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
-                BR /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)));
+            if (Math.abs(FL) > 1 || Math.abs(BL) > 1 || Math.abs(FR) > 1 || Math.abs(BR) > 1) {
+                FL /= Math.max(Math.max(Math.abs(FL), Math.abs(FR)), Math.max(Math.abs(BL), Math.abs(BR)))
+                BL /= Math.max(Math.max(Math.abs(FL), Math.abs(FR)), Math.max(Math.abs(BL), Math.abs(BR)))
+                FR /= Math.max(Math.max(Math.abs(FL), Math.abs(FR)), Math.max(Math.abs(BL), Math.abs(BR)))
+                BR /= Math.max(Math.max(Math.abs(FL), Math.abs(FR)), Math.max(Math.abs(BL), Math.abs(BR)))
 
             }
-            DriveTrain.fl.power = FL
-            //DriveTrain.ml.power = FL
+            DriveTrain.fl.power = FL * flip
+            DriveTrain.fr.power = FR * flip
+            DriveTrain.bl.power = BL * flip
+            DriveTrain.br.power = BR * flip
 
-            DriveTrain.fr.power = FR
-            DriveTrain.bl.power = BL
 
-            DriveTrain.br.power = BR
-            //DriveTrain.mr.power = BR
+        } else {
+            DriveTrain.fl.power = 0.0
+            DriveTrain.fr.power = 0.0
+            DriveTrain.bl.power = 0.0
+            DriveTrain.br.power = 0.0
+
         }
-        else {
-            DriveTrain.setPower(0.0,0.0)
-        }
+
     }
 
 
-    fun followPath(points : MutableList<State>) {
-        DriveTrain.followPath(points)
-    }
-
-    fun followPath(points : MutableList<State>, pidCoefficients: PIDCoefficients, kv : Double, ka : Double) {
-        DriveTrain.followPath(points, pidCoefficients, kv, ka)
-    }
-
-    fun builder() : NPathBuilder {
-        return Generator
-    }
+//    fun followPath(points : MutableList<State>) {
+//        DriveTrain.followPath(points)
+//    }
+//
+//    fun followPath(points : MutableList<State>, pidCoefficients: PIDCoefficients, kv : Double, ka : Double) {
+//        DriveTrain.followPath(points, pidCoefficients, kv, ka)
+//    }
+//
+//    fun builder() : NPathBuilder {
+//        return Generator
+//    }
 }

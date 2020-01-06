@@ -126,7 +126,7 @@ object NewBitMap {
             return "L"
         } else if (avgX >= 200 && avgX <=300){
             return  "C"
-        } else if (avgX >= 380){
+        } else if (avgX >= 350){
             return "R"
         }
 

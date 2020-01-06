@@ -59,9 +59,10 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
             it.setPIDFCoefficients(it.mode, PIDFCoefficients(25.0,0.5,20.0,0.0))
+
         }
 
-        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+        //setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
         resetEncoders()
     }
 
