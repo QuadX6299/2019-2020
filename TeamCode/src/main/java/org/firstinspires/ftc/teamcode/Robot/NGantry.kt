@@ -55,12 +55,6 @@ class NGantry constructor(Op : OpMode) {
         }
     }
 
-
-
-
-
-
-
     fun frontClampOpen(){
         frontClamp.position = .52
     }

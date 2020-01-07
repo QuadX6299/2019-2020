@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Op;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Robot.NDriveTrain;
 import org.firstinspires.ftc.teamcode.Robot.NDriveTrain4Mecanum;
 import org.firstinspires.ftc.teamcode.Robot.NRobot;
 
+@Autonomous(name = "Drive Test", group = "Autonomous")
 public class DriveTest extends LinearOpMode {
 
     private ElapsedTime t;
@@ -22,21 +24,13 @@ public class DriveTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         Robot = new NRobot(this);
-        t = new ElapsedTime();
-//
-        Robot.reset();
 
-        while (!isStarted()) {
-            skyStonePosition = NewBitMap.blueVision();
-            telemetry.addData("Skystone Position: ", skyStonePosition);
-            telemetry.update();
-        }
         waitForStart();
 
-        NRobot.DriveTrain.moveEncoder(0.5,10.0,2000);
-
+        NRobot.DriveTrain.encoderDrive(20, .75);
+        NRobot.DriveTrain.encoderDriveStrafe(20,.75,true);
+        NRobot.DriveTrain.turnPID(.2, false,(Math.PI) / 2.0);
 
     }
 }

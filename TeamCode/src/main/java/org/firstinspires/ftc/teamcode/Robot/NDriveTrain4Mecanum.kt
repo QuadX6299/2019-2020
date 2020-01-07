@@ -49,8 +49,8 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
     val br : ExpansionHubMotor = Op.hardwareMap.get(ExpansionHubMotor::class.java, "br")
 
     init {
-        fr.direction = DcMotorSimple.Direction.REVERSE
-        br.direction = DcMotorSimple.Direction.REVERSE
+        fl.direction = DcMotorSimple.Direction.REVERSE
+        bl.direction = DcMotorSimple.Direction.REVERSE
 
         left = listOf(fl,bl)
         right = listOf(fr,br)
@@ -58,7 +58,7 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
 
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
-            it.setPIDFCoefficients(it.mode, PIDFCoefficients(25.0,0.5,20.0,0.0))
+            it.setPIDFCoefficients(it.mode, PIDFCoefficients(5.0,0.5,15.0,0.0))
 
         }
 
@@ -94,8 +94,15 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
 
     fun List<ExpansionHubMotor>.runToPose(encoder : Double) {
         this.forEach {
-            it.mode = DcMotor.RunMode.RUN_TO_POSITION
             it.targetPosition = encoder.toInt()
+            it.mode = DcMotor.RunMode.RUN_TO_POSITION
+        }
+    }
+
+    fun List<ExpansionHubMotor>.runToPose(encoderArray : List<Double>) {
+        this.zip(encoderArray).forEach {
+            it.first.targetPosition = it.second.toInt()
+            it.first.mode = DcMotor.RunMode.RUN_TO_POSITION
         }
     }
 
@@ -117,6 +124,14 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
 
     fun getF() : Double {
         return 32767 / getTps()
+    }
+
+    fun getEncoderAll() : List<Double> {
+        val bulkL : RevBulkData = hubL.bulkInputData
+        val bulkR : RevBulkData = hubR.bulkInputData
+
+        return listOf(bulkL.getMotorCurrentPosition(fl).toDouble().e2i(), bulkR.getMotorCurrentPosition(fr).toDouble().e2i()
+        , bulkL.getMotorCurrentPosition(bl).toDouble().e2i(), bulkR.getMotorCurrentPosition(br).toDouble().e2i())
     }
 
     fun getEncoderAverage() : List<Double> {
@@ -187,8 +202,14 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         }
     }
 
+    fun setPower(p : List<Double>) {
+        all.zip(p).forEach {
+            it.first.power = it.second
+        }
+    }
+
     fun turnPID(kP:Double, right:Boolean, angle:Double){
-        while (!IMU.heading().fuzzyEquals(angle, 3.0.d2r()) && !Thread.interrupted()) {
+        while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
             val error : Double = abs(angle - IMU.heading())
             Op.telemetry.addData("Error", error)
             turnPrimitive(max(error * kP,.1), right)
@@ -202,7 +223,6 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
 
     fun followPath(path : MutableList<State>, reversed : Boolean = false) {
         val pid = PIDCoefficients(.015,0.0,0.0)
-        val nano = ElapsedTime()
         val follower = NPathFollower(path = path, op = Op)
         val leftC = TankController(pid, 1.0/80.0,.003, Op = Op)
         val rightC = TankController(pid, 1.0/80.0, .003, Op = Op)
@@ -251,23 +271,35 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
     }
 
     fun encoderDrive(inches : Double, power : Double) {
-        val (l,r) = getEncoderAverage()
-        val newL = l + inches.i2e()
-        val newR = r + inches.i2e()
+        val (fl,fr,bl,br) = getEncoderAll()
+        val encoders = listOf<Double>(fl.i2e() + inches.i2e(), fr.i2e() + inches.i2e(), bl.i2e() + inches.i2e(), br.i2e() + inches.i2e())
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
-        left.runToPose(newL)
-        right.runToPose(newR)
-        setPower(power, power)
+        all.runToPose(encoders)
+        var limitedPower = 0.0
         while (motorsBusy()) {
-            val enc = getEncoderAverage()
-            Op.telemetry.addData("Current Distance", (enc[0] + enc[1]) / 2.0)
+            limitedPower = min(1.0, (2.0 * Clock.system().seconds()))
+            setPower(limitedPower,limitedPower)
+        }
+        all.forEach {
+            it.mode = DcMotor.RunMode.RUN_USING_ENCODER
         }
         setPower(0.0,0.0)
     }
 
-
-
-
-
-
+    fun encoderDriveStrafe(inches: Double, power: Double, right: Boolean) {
+        val (fl,fr,bl,br) = getEncoderAll()
+        val rightMult = if (right) 1.0 else -1.0
+        val newPose = listOf(fl.i2e() + (inches.i2e() * rightMult), fr.i2e() - (inches.i2e() * rightMult), bl.i2e() - (inches.i2e() * rightMult), br.i2e() + (inches.i2e() * rightMult))
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+        all.runToPose(newPose)
+        var limitedPower = 0.0
+        while (motorsBusy()) {
+            limitedPower = min(1.0, 2.0 * Clock.system().seconds())
+            setPower(listOf(limitedPower, -limitedPower, -limitedPower, limitedPower))
+        }
+        all.forEach {
+            it.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        }
+        setPower(0.0,0.0)
+    }
 }

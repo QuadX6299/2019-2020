@@ -30,7 +30,7 @@ class NRobot constructor(val opMode: OpMode) {
 
 
     companion object Modules {
-        lateinit var DriveTrain : NDriveTrain
+        lateinit var DriveTrain : NDriveTrain4Mecanum
         lateinit var Intake : NIntake
         lateinit var Lift : NLift
         lateinit var FoundationHook : NFoundationHook
@@ -39,9 +39,11 @@ class NRobot constructor(val opMode: OpMode) {
         //lateinit var Cap : NCap
         lateinit var Gantry : NGantry
         lateinit var Vision : NVision
+        lateinit var AutoGrabber : NAutoGrabber
 
         fun init(Op : OpMode) {
-            DriveTrain = NDriveTrain(Op)
+            AutoGrabber = NAutoGrabber(Op)
+            DriveTrain = NDriveTrain4Mecanum(Op)
             Gantry = NGantry(Op)
             Intake = NIntake(Op)
             Lift = NLift(Op)
