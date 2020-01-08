@@ -98,13 +98,17 @@ class NRobot constructor(val opMode: OpMode) {
     }
 
     fun liftControls() {
-        if (opMode.gamepad2.right_stick_y > 0.1) {
-            Lift.power(opMode.gamepad2.left_stick_y.toDouble())
-            //this is up
-        } else if (opMode.gamepad2.right_stick_y < 0.1) {
-            Lift.power(opMode.gamepad2.left_stick_y.toDouble())
+        if (opMode.gamepad2.right_trigger > .1) {
+            Lift.power(-.2)
         } else {
-            Lift.power(0.0)
+            if (opMode.gamepad2.right_stick_y > 0.1) {
+                Lift.power(opMode.gamepad2.left_stick_y.toDouble())
+                //this is up
+            } else if (opMode.gamepad2.right_stick_y < 0.1) {
+                Lift.power(opMode.gamepad2.left_stick_y.toDouble())
+            } else {
+                Lift.power(0.0)
+            }
         }
     }
 
@@ -147,7 +151,7 @@ class NRobot constructor(val opMode: OpMode) {
 
             val r = Math.hypot(opMode.gamepad1.left_stick_x.toDouble(), opMode.gamepad1.left_stick_y.toDouble())
             val theta = Math.atan2(opMode.gamepad1.left_stick_y.toDouble(), -opMode.gamepad1.left_stick_x.toDouble()) - Math.PI / 4
-            val rightX = -opMode.gamepad1.right_stick_x.toDouble()
+            val rightX = -opMode.gamepad1.right_stick_x.toDouble() * -flip
 
             //as per unit circle cos gives x, sin gives you y
             var FL = r * Math.cos(theta) + rightX

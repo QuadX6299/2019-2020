@@ -4,20 +4,39 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.openftc.revextensions2.ExpansionHubServo
 
 class NAutoGrabber constructor(Op: OpMode) {
-    val grabber : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "blockpicker")
+    val grabber : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "grabber")
     val rotator : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "rotate")
 
     init {
-        up()
+        store()
     }
 
-    fun down() {
-        grabber.position = 0.0
+    fun store() {
+        grabber.position = 0.8
         rotator.position = 0.0
     }
 
-    fun up() {
+    fun clamp() {
         rotator.position = 1.0
-        grabber.position = 1.0
+        grabber.position = .6
     }
+
+    fun rotatorDown() {
+        rotator.position = 1.0
+        grabber.position = .2
+    }
+
+    fun dropBlock() {
+        grabber.position = 0.4
+
+    }
+
+    fun grabberDown() {
+        grabber.position = .62
+    }
+
+    fun hold() {
+        rotator.position = .6
+    }
+
 }

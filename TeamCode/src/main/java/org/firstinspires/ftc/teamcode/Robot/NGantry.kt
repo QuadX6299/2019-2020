@@ -24,7 +24,7 @@ class NGantry constructor(Op : OpMode) {
         }, 700)
         Handler(Looper.getMainLooper()).postDelayed({
             backClampClose()
-        }, 2000)
+        }, 700)
     }
 
 

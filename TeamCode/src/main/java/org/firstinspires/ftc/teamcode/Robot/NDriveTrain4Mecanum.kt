@@ -217,6 +217,14 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         setPower(0.0,0.0)
     }
 
+    fun turnPIDAuto(kP: Double, angle: Double) {
+        if (IMU.heading() > angle) {
+            turnPID(kP,true,angle)
+        } else {
+            turnPID(kP,false,angle)
+        }
+    }
+
     fun turnPrimitive(power : Double, right : Boolean) {
         if (right) setPower(power, -power) else setPower(-power, power)
     }
@@ -277,13 +285,13 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         all.runToPose(encoders)
         var limitedPower = 0.0
         while (motorsBusy()) {
-            limitedPower = min(1.0, (2.0 * Clock.system().seconds()))
+            limitedPower = min(power, (2.0 * Clock.system().seconds()))
             setPower(limitedPower,limitedPower)
         }
+        setPower(0.0,0.0)
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
         }
-        setPower(0.0,0.0)
     }
 
     fun encoderDriveStrafe(inches: Double, power: Double, right: Boolean) {
@@ -292,9 +300,25 @@ class NDriveTrain4Mecanum constructor(val Op : OpMode) {
         val newPose = listOf(fl.i2e() + (inches.i2e() * rightMult), fr.i2e() - (inches.i2e() * rightMult), bl.i2e() - (inches.i2e() * rightMult), br.i2e() + (inches.i2e() * rightMult))
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
         all.runToPose(newPose)
+        setPower(listOf(power, -power, -power, power))
+        while (motorsBusy()) {
+        }
+        setPower(0.0,0.0)
+        all.forEach {
+            it.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        }
+
+    }
+
+    fun encoderDriveStrafe(inches: Double, power: Double, right: Boolean, acc: Double) {
+        val (fl,fr,bl,br) = getEncoderAll()
+        val rightMult = if (right) 1.0 else -1.0
+        val newPose = listOf(fl.i2e() + (inches.i2e() * rightMult), fr.i2e() - (inches.i2e() * rightMult), bl.i2e() - (inches.i2e() * rightMult), br.i2e() + (inches.i2e() * rightMult))
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+        all.runToPose(newPose)
         var limitedPower = 0.0
         while (motorsBusy()) {
-            limitedPower = min(1.0, 2.0 * Clock.system().seconds())
+            limitedPower = min(1.0, (acc.pow(-1)) * Clock.system().seconds())
             setPower(listOf(limitedPower, -limitedPower, -limitedPower, limitedPower))
         }
         all.forEach {
