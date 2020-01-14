@@ -13,6 +13,9 @@ class NGantry constructor(Op : OpMode) {
 
     var out : Boolean = false
 
+    var frontClampDown : Boolean = false
+    var backClampDown : Boolean = true
+
     init {
         origin()
     }
@@ -56,18 +59,22 @@ class NGantry constructor(Op : OpMode) {
     }
 
     fun frontClampOpen(){
+        frontClampDown = false
         frontClamp.position = .52
     }
 
     fun frontClampClose(){
+        frontClampDown = true
         frontClamp.position = 0.1
     }
 
     fun backClampOpen(){
+        backClampDown = false
         backClamp.position = .1
     }
 
     fun backClampClose(){
+        backClampDown = true
         backClamp.position = 0.56
     }
 
@@ -79,7 +86,25 @@ class NGantry constructor(Op : OpMode) {
         gantry.position = .8
     }
 
+    fun toggleFrontClamp() {
+        if (frontClampDown) {
+            frontClampDown = false
+            frontClampOpen()
+        } else {
+            frontClampDown = true
+            frontClampClose()
+        }
+    }
 
+    fun toggleBackClamp() {
+        if (backClampDown) {
+            backClampDown = false
+            backClampOpen()
+        } else {
+            backClampDown = true
+            backClampClose()
+        }
+    }
 
 
 }

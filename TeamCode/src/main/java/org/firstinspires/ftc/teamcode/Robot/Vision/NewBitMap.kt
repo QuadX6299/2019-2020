@@ -22,19 +22,30 @@ import android.graphics.Color.green
 import android.graphics.Color.red
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 
-object NewBitMap {
+class NewBitMap constructor(val opMode: OpMode) {
 
 
     // importing vuforia class for taking an image
     lateinit var vuforia: VuforiaLocalizer
-    lateinit var opMode: OpMode
 
 
 
+    init {
+        val cameraMonitorViewId = opMode.hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.packageName)
 
+        val params = VuforiaLocalizer.Parameters(cameraMonitorViewId)
+
+        params.vuforiaLicenseKey = "AQvLCbX/////AAABmTGnnsC2rUXvp1TAuiOSac0ZMvc3GKI93tFoRn4jPzB3uSMiwj75PNfUU6MaVsNZWczJYOep8LvDeM/3hf1+zO/3w31n1qJTtB2VHle8+MHWNVbNzXKLqfGSdvXK/wYAanXG2PBSKpgO1Fv5Yg27eZfIR7QOh7+J1zT1iKW/VmlsVSSaAzUSzYpfLufQDdE2wWQYrs8ObLq2kC37CeUlJ786gywyHts3Mv12fWCSdTH5oclkaEXsVC/8LxD1m+gpbRc2KC0BXnlwqwA2VqPSFU91vD8eCcD6t2WDbn0oJas31PcooBYWM6UgGm9I2plWazlIok72QG/kOYDh4yXOT4YXp1eYh864e8B7mhM3VclQ"
+        params.cameraName = opMode.hardwareMap.get(WebcamName::class.java, "Webcam 1")
+        vuforia = ClassFactory.getInstance().createVuforia(params)
+        Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true) //enables RGB565 format for the image
+        vuforia.frameQueueCapacity = 4 //tells VuforiaLocalizer to only store one frame at a time
+        vuforia.enableConvertFrameToBitmap()
+    }
 
     @Throws(InterruptedException::class)
     fun getImage() : Bitmap {
+
         val frame = vuforia.frameQueue.take()
         var rgb: Image = frame.getImage(1)
         val numImages = frame.numImages
@@ -59,18 +70,17 @@ object NewBitMap {
         return bm
     }
 
-    @JvmStatic fun getImageHeight():Double{
+    fun getImageHeight():Double{
         return getImage().height.toDouble()
     }
 
-    @JvmStatic fun getImageWeidth():Double{
+    fun getImageWeidth():Double{
         return getImage().width.toDouble()
     }
 
 
     @Throws(InterruptedException::class)
-    @JvmStatic
-    fun redVision(): String {
+    fun blueVision(): String {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
         //x : 800
@@ -82,10 +92,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (0 * .416).toInt()
-        val right: Int = (1070 * .416).toInt()
-        val bottom: Int = (170 * .416).toInt()
-        val top: Int = (0 * .416).toInt()
+        val left: Int = (200 * .625).toInt()
+        val right: Int = (900 * .625).toInt()
+        val bottom: Int = (110 * .625).toInt()
+        val top: Int = (0 * .625).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {
@@ -122,19 +132,18 @@ object NewBitMap {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 150){
+        if (avgX <= 210){
             return "L"
-        } else if (avgX >= 200 && avgX <=300){
+        } else if (avgX >= 220 && avgX <=400){
             return  "C"
-        } else if (avgX >= 350){
+        } else if (avgX >= 460){
             return "R"
         }
 
-        return "Cant Find Position"
+        return "C"
     }
 
     @Throws(InterruptedException::class)
-    @JvmStatic
     fun getAvgXRed(): Double {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
@@ -147,10 +156,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (0 * .416).toInt()
-        val right: Int = (1070 * .416).toInt()
-        val bottom: Int = (170 * .416).toInt()
-        val top: Int = (0 * .416).toInt()
+        val left: Int = (25 * .625).toInt()
+        val right: Int = (730 * .625).toInt()
+        val bottom: Int = (100 * .625).toInt()
+        val top: Int = (10 * .625).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {
@@ -194,8 +203,7 @@ object NewBitMap {
 
 
     @Throws(InterruptedException::class)
-    @JvmStatic
-    fun blueVision(): String {
+    fun redVision(): String {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
         //x : 800
@@ -207,10 +215,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (175 * .416).toInt()
-        val right: Int = (1300 * .416).toInt()
-        val bottom: Int = (200 * .416).toInt()
-        val top: Int = (0 * .416).toInt()
+        val left: Int = (25 * .625).toInt()
+        val right: Int = (730 * .625).toInt()
+        val bottom: Int = (100 * .625).toInt()
+        val top: Int = (10 * .625).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {
@@ -247,20 +255,19 @@ object NewBitMap {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 250){
+        if (avgX <= 70){
             return "L"
-        } else if (avgX >= 300 && avgX <= 360){
+        } else if (avgX >= 80 && avgX <= 350){
             return  "C"
-        } else if (avgX >= 400){
+        } else if (avgX >= 380){
             return "R"
         }
-        return "Can't find position"
+        return "C"
 
 //        return avgX
     }
 
     @Throws(InterruptedException::class)
-    @JvmStatic
     fun getAvgXBlue(): Double {
         val bitmap = getImage()
         val xValues = ArrayList<Int>()
@@ -273,10 +280,10 @@ object NewBitMap {
         //counters for whether a pixel is gold, otherwise assign it to black
         var black = 0
         var gold = 0
-        val left: Int = (175 * .416).toInt()
-        val right: Int = (1300 * .416).toInt()
-        val bottom: Int = (200 * .416).toInt()
-        val top: Int = (0 * .416).toInt()
+        val left: Int = (200 * .625).toInt()
+        val right: Int = (900 * .625).toInt()
+        val bottom: Int = (110 * .625).toInt()
+        val top: Int = (0 * .625).toInt()
         //col range 145..830
         //row range 110..320
         for (colNum in left..right) {

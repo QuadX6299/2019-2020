@@ -10,15 +10,17 @@ import org.firstinspires.ftc.teamcode.Robot.NRobot;
 public class BlueVision extends OpMode {
 
     NRobot r;
+    NewBitMap nbb;
     @Override
     public void init() {
         r = new NRobot(this);
+        nbb = new NewBitMap(this);
     }
 
     @Override
     public void loop() {
         try {
-            telemetry.addData("Position: ", NewBitMap.blueVision());
+            telemetry.addData("Position: ", nbb.blueVision());
             telemetry.update();
         } catch (InterruptedException e) {
 

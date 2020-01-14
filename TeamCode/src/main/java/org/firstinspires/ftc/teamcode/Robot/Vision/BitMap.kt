@@ -44,7 +44,7 @@ class BitMap// constructor turns on webcam imaging and sets capacity and format 
     // create bitmap
     @Throws(InterruptedException::class)
     fun bitmap() : Bitmap {
-        val frame = NewBitMap.vuforia.frameQueue.take()
+        val frame = vuforia.frameQueue.take()
         val numImages = frame.numImages
         var rgb: Image? = null
         for (i in 0 until numImages) {

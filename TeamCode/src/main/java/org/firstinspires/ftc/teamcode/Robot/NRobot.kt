@@ -38,7 +38,6 @@ class NRobot constructor(val opMode: OpMode) {
         lateinit var Generator : NPathBuilder
         //lateinit var Cap : NCap
         lateinit var Gantry : NGantry
-        lateinit var Vision : NVision
         lateinit var AutoGrabber : NAutoGrabber
 
         fun init(Op : OpMode) {
@@ -50,7 +49,6 @@ class NRobot constructor(val opMode: OpMode) {
             FoundationHook = NFoundationHook(Op)
             OSAsync = Handler(Looper.getMainLooper())
             Generator = NPathBuilder()
-            Vision = NVision(Op)
             IMU.init(Op)
         }
     }
@@ -76,11 +74,11 @@ class NRobot constructor(val opMode: OpMode) {
         if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
             Gantry.setAssemblyPosition(NGantry.POSITIONS.COLLECTION)
         } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
-            Gantry.setAssemblyPosition(NGantry.POSITIONS.TRANSITION)
+            Gantry.toggleFrontClamp()
         } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y){
             Gantry.setAssemblyPosition(NGantry.POSITIONS.GANTRYOUT)
         } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
-            Gantry.setAssemblyPosition(NGantry.POSITIONS.DEPOSIT)
+            Gantry.toggleBackClamp()
         } else if (opMode.gamepad2.x && g2prev.x != opMode.gamepad2.x){
             Gantry.frontClampOpen()
         }

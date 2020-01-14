@@ -27,8 +27,7 @@ class NAutoGrabber constructor(Op: OpMode) {
     }
 
     fun dropBlock() {
-        grabber.position = 0.4
-
+        grabber.position = 0.2
     }
 
     fun grabberDown() {
