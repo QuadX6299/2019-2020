@@ -46,4 +46,25 @@ class DriveTrain constructor(val opMode: OpMode) {
             it.setPIDFCoefficients(it.mode, PIDFCoefficients(60.0,.5,20.0,0.0))
         }
     }
+
+    @Throws(InterruptedException::class)
+    fun bulkEncoders() {
+        val bulkL = hubL.bulkInputData
+        val bulkR = hubR.bulkInputData
+
+        if (bulkL == null || bulkR == null) {
+            throw InterruptedException("Literally the bulks aren't there")
+        }
+
+        val leftEnc = mutableListOf<Int>()
+        val rightEnc = mutableListOf<Int>()
+
+        left.forEach {
+            bulkL.getMotorCurrentPosition(it)
+        }
+
+        right.forEach {
+            bulkR.getMotorCurrentPosition(it)
+        }
+    }
 }

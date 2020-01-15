@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.Util
 
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
+import java.lang.Math.copySign
 import kotlin.math.*
 
 fun Double.fuzzyEquals(b: Double, tolerance: Double): Boolean {
@@ -41,6 +42,15 @@ fun Double.limitAngle() : Double = if (this < 0) {
     (PI - abs(this)) + PI
 } else {
     this
+}
+
+fun Double.wrap(): Double {
+    var remain = this % (PI * 2)
+    if (abs(remain) > PI) {
+        remain -= copySign(PI * 2, remain)
+        remain -= if (remain < 0) { -1 } else { 1 } * PI * 2
+    }
+    return remain
 }
 
 fun Double.toVector(angle : Double = 0.0) : Point {

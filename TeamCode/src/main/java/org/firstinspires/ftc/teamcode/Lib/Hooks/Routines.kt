@@ -1,45 +1,44 @@
 package org.firstinspires.ftc.teamcode.Lib.Hooks
 
-typealias Subroutine<T> = (T) -> Unit
+import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
+import org.firstinspires.ftc.teamcode.Modules.Robot
 
-interface Routine {
-
-}
+interface Routine { }
 
 interface Singular : Routine {
-    fun run(arg: Int)
+    fun run(arg: Robot)
 }
 
 interface AsyncLooping : Routine {
-    fun loop(arg: Int) : Boolean
+    fun loop(arg: Robot) : Boolean
 }
 
 interface PathBased : Routine {
-    fun start(path: Double, arg: Int)
+    fun start(path: List<Waypoint>, arg: Robot)
 }
 
 interface TimeBased : Routine {
-    fun queue(time: Long, arg: Int)
+    fun queue(time: Long, arg: Robot)
 }
 
 interface BlockingLoop : Routine {
-    fun blockLoop(arg: Int) : Boolean
+    fun blockLoop(arg: Robot) : Boolean
 }
 
-class SingleRoutine constructor(val action: (Int) -> Unit) : Singular {
-    override fun run(arg: Int) {
+class SingleRoutine constructor(val action: (Robot) -> Unit) : Singular {
+    override fun run(arg: Robot) {
         action(arg)
     }
 }
 
-class AsyncLoopRoutine constructor(val action: (Int) -> Boolean) : AsyncLooping {
-    override fun loop(arg: Int): Boolean {
+class AsyncLoopRoutine constructor(val action: (Robot) -> Boolean) : AsyncLooping {
+    override fun loop(arg: Robot): Boolean {
         return action(arg)
     }
 }
 
-class BlockingLoopRoutine constructor(val action: (Int) -> Boolean) : BlockingLoop {
-    override fun blockLoop(arg: Int): Boolean {
+class BlockingLoopRoutine constructor(val action: (Robot) -> Boolean) : BlockingLoop {
+    override fun blockLoop(arg: Robot): Boolean {
         return action(arg)
     }
 }
