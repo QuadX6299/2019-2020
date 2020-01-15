@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.Util
 
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
+import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import java.lang.Math.copySign
 import kotlin.math.*
 
@@ -23,6 +24,8 @@ infix operator fun Point.times(other : Double) : Point = Point(this.x * other, t
 infix operator fun Point.div(other : Double) : Point = Point(this.x/other, this.y/other)
 
 infix operator fun Point.plus(other : Point) : Point = Point(this.x + other.x, this.y + other.y)
+
+infix operator fun Pose2D.times(other: Double) : Pose2D = Pose2D(this.x * other, this.y * other, this.heading * other)
 
 infix fun Point.dot(other: Point) : Double = (this.x*other.x) + (this.y*other.y)
 
