@@ -47,6 +47,12 @@ fun Double.limitAngle() : Double = if (this < 0) {
     this
 }
 
+fun Double.limitAngle2() : Double  {
+    var modifiedAngle = this % (2 * PI)
+    modifiedAngle = (modifiedAngle + 2 * PI) % (2 * PI)
+    return this
+}
+
 fun Double.wrap(): Double {
     var remain = this % (PI * 2)
     if (abs(remain) > PI) {

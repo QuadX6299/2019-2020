@@ -5,16 +5,23 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
+import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
+import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
+import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Modules.Meta.GoBILDA435
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
+import org.openftc.revextensions2.RevBulkData
+import kotlin.math.PI
 
-class DriveTrain constructor(val opMode: OpMode) {
+
+class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
     var lastWheelPositions = emptyList<Double>()
 
     val left : List<ExpansionHubMotor>
     val right : List<ExpansionHubMotor>
     val all : List<ExpansionHubMotor>
+    val encoders : List<Int>
 
     val hubL : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java,  "hubLeft")
     val hubR : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
@@ -31,6 +38,8 @@ class DriveTrain constructor(val opMode: OpMode) {
         const val wheelRadius = 2.0
         const val gearRatio = 1.0
         const val dtWidth = 18.0
+        // Left Center Right
+        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,-1.748, 0.0), Pose2D(.006, .033, PI), Pose2D(-6.188, 1.748, 0.0))
     }
 
     init {
@@ -40,12 +49,16 @@ class DriveTrain constructor(val opMode: OpMode) {
         left = listOf(fl, bl)
         right = listOf(fr, br)
         all = listOf(fl, fr, bl, br)
+        encoders = listOf(0,1,2)
+
 
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
             it.setPIDFCoefficients(it.mode, PIDFCoefficients(60.0,.5,20.0,0.0))
         }
     }
+
+    fun Int.e2i() : Double = (wheelRadius * 2.0 * PI * gearRatio * this) / 383.6
 
     @Throws(InterruptedException::class)
     fun bulkEncoders() {
@@ -66,5 +79,18 @@ class DriveTrain constructor(val opMode: OpMode) {
         right.forEach {
             bulkR.getMotorCurrentPosition(it)
         }
+    }
+
+    override fun getWheelPositions(): List<Double> {
+        // fl bl br fr
+        val bulkData: RevBulkData = hubL.getBulkInputData()
+                ?: return listOf(0.0, 0.0, 0.0, 0.0)
+
+        val wheelPositions: MutableList<Double> = ArrayList()
+
+        encoders.forEach {
+            wheelPositions.add(bulkData.getMotorCurrentPosition(it).e2i())
+        }
+        return wheelPositions
     }
 }

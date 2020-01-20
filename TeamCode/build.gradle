@@ -21,4 +21,5 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'org.openftc:rev-extensions-2:1.2'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
 }
