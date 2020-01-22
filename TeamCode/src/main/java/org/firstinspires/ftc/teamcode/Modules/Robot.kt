@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.Modules
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
 import org.firstinspires.ftc.teamcode.Lib.Util.clip
+import kotlin.*
 import kotlin.math.*
 
 class Robot constructor(val opMode: OpMode) {
     var flip = 1.0
+    var g1prev : Gamepad = Gamepad()
 
     companion object Modules {
         lateinit var driveTrain : DriveTrain
@@ -17,17 +20,26 @@ class Robot constructor(val opMode: OpMode) {
 
     init {
         flip = 1.0
-        Modules.init(opMode)
+        init(opMode)
+    }
+
+    fun g1() {
+        if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {
+            flip *= -1.0
+        }
+        g1prev.copy(opMode.gamepad1)
     }
 
     fun reset() {
-        Modules.init(opMode)
+        init(opMode)
     }
 
     fun controls() {
         sixArcadeArc()
+        g1()
         driveTrain.update()
-        opMode.telemetry.addData("Perceived Location", driveTrain.poseEstimate)
+        opMode.telemetry.addData("Perceived Location", driveTrain.poseEstimate.easyToRead())
+        opMode.telemetry.addData("Poses", driveTrain.getWheelPositions())
         opMode.telemetry.update()
     }
     fun sixArcadeArc() {
@@ -63,7 +75,6 @@ class Robot constructor(val opMode: OpMode) {
             driveTrain.fr.power = 0.0
             driveTrain.bl.power = 0.0
             driveTrain.br.power = 0.0
-
         }
 
     }

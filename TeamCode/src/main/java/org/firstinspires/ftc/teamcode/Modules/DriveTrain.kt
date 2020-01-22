@@ -35,11 +35,14 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
     val br : ExpansionHubMotor = opMode.hardwareMap.get(ExpansionHubMotor::class.java, "br")
 
     companion object Constants {
+        const val odomRadius = 1.0
+        const val odomRatio = 1.0
+        const val odomTpr = 8192
         const val wheelRadius = 2.0
         const val gearRatio = 1.0
         const val dtWidth = 18.0
         // Left Center Right
-        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,-1.748, 0.0), Pose2D(.006, .033, PI), Pose2D(-6.188, 1.748, 0.0))
+        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,-1.748, 0.0), Pose2D(-6.188, 1.748, 0.0), Pose2D(.006, .033, (-PI) / 2.0))
     }
 
     init {
@@ -49,16 +52,27 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
         left = listOf(fl, bl)
         right = listOf(fr, br)
         all = listOf(fl, fr, bl, br)
-        encoders = listOf(0,1,2)
+        encoders = listOf(0,1,3)
 
 
         all.forEach {
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
-            it.setPIDFCoefficients(it.mode, PIDFCoefficients(60.0,.5,20.0,0.0))
+            it.setPIDFCoefficients(it.mode, PIDFCoefficients(2.0,1.0,5.0,0.0))
         }
+
+        resetEncoders()
     }
 
     fun Int.e2i() : Double = (wheelRadius * 2.0 * PI * gearRatio * this) / 383.6
+
+    fun Int.e2iOdom() : Double = (odomRadius * 2.0 * PI * this) / odomTpr
+
+    fun resetEncoders() {
+        all.forEach {
+            it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            it.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        }
+    }
 
     @Throws(InterruptedException::class)
     fun bulkEncoders() {
@@ -83,13 +97,14 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
 
     override fun getWheelPositions(): List<Double> {
         // fl bl br fr
-        val bulkData: RevBulkData = hubL.getBulkInputData()
+        val bulkData: RevBulkData = hubR.getBulkInputData()
                 ?: return listOf(0.0, 0.0, 0.0, 0.0)
 
         val wheelPositions: MutableList<Double> = ArrayList()
 
         encoders.forEach {
-            wheelPositions.add(bulkData.getMotorCurrentPosition(it).e2i())
+            wheelPositions.add(bulkData.getMotorCurrentPosition(it).e2iOdom())
+
         }
         return wheelPositions
     }

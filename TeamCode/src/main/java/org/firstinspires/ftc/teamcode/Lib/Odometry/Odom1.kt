@@ -15,7 +15,7 @@ import kotlin.math.sin
 
 
 // offsets = relative to center of robot +x = forward on robot
-abstract class Odom1 constructor(val offsets: List<Pose2D>) {
+abstract class Odom1 constructor(offsets: List<Pose2D>) {
     private var lastValues = emptyList<Double>()
     private var _poseEstimate = Pose2D()
     var poseEstimate: Pose2D
@@ -65,7 +65,7 @@ abstract class Odom1 constructor(val offsets: List<Pose2D>) {
         lastWheelPositions = wheelPositions
     }
 
-    fun relativeOdometryUpdate(fieldPose: Pose2D, robotPoseDelta: Pose2D): Pose2D {
+    fun relativeOdometryUpdate(fieldPose: Pose2D, robotPoseDelta: Pose2D) : Pose2D {
         val dtheta = robotPoseDelta.heading
         val (sineTerm, cosTerm) = if (dtheta.fuzzyEquals(0.0, 10.0.pow(-6))) {
             1.0 - dtheta * dtheta / 6.0 to dtheta / 2.0
