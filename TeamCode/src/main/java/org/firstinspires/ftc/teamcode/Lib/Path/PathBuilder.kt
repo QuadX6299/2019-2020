@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PathBuilder(starting: Waypoint) {
-    val path : MutableList<Waypoint> = mutableListOf(starting)
+class PathBuilder constructor(start: Waypoint) {
+    val path : MutableList<Waypoint> = mutableListOf(start)
 
     fun addPoint(waypoint: Waypoint) : PathBuilder {
         path.add(waypoint)

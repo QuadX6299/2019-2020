@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
+import org.firstinspires.ftc.teamcode.Lib.Path.Follower
+import org.firstinspires.ftc.teamcode.Lib.Path.goToPosition
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
+import org.firstinspires.ftc.teamcode.Lib.Util.*
+import org.firstinspires.ftc.teamcode.Modules.Meta.Clock
 import org.firstinspires.ftc.teamcode.Modules.Meta.GoBILDA435
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
@@ -15,8 +19,9 @@ import org.openftc.revextensions2.RevBulkData
 import kotlin.math.PI
 
 
-class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
-    var lastWheelPositions = emptyList<Double>()
+class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
+    var lastPose2D : Pose2D = Pose2D(0.0,0.0,0.0)
+    var lastTime = Clock.system().seconds()
 
     val left : List<ExpansionHubMotor>
     val right : List<ExpansionHubMotor>
@@ -41,7 +46,7 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
         const val wheelRadius = 2.0
         const val gearRatio = 1.0
         const val dtWidth = 18.0
-        // Left Center Right
+        // Left Right Center
         val offsets: List<Pose2D> = listOf(Pose2D(-6.188,-1.748, 0.0), Pose2D(-6.188, 1.748, 0.0), Pose2D(.006, .033, (-PI) / 2.0))
     }
 
@@ -54,13 +59,9 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
         all = listOf(fl, fr, bl, br)
         encoders = listOf(0,1,3)
 
-
         all.forEach {
-            it.mode = DcMotor.RunMode.RUN_USING_ENCODER
-            it.setPIDFCoefficients(it.mode, PIDFCoefficients(2.0,1.0,5.0,0.0))
+            it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         }
-
-        resetEncoders()
     }
 
     fun Int.e2i() : Double = (wheelRadius * 2.0 * PI * gearRatio * this) / 383.6
@@ -97,15 +98,48 @@ class DriveTrain constructor(val opMode: OpMode) : Odom1(offsets) {
 
     override fun getWheelPositions(): List<Double> {
         // fl bl br fr
-        val bulkData: RevBulkData = hubR.getBulkInputData()
+        val bulkData: RevBulkData = hubR.bulkInputData
                 ?: return listOf(0.0, 0.0, 0.0, 0.0)
 
-        val wheelPositions: MutableList<Double> = ArrayList()
+        val wheelPositions: MutableList<Double> = mutableListOf()
 
         encoders.forEach {
             wheelPositions.add(bulkData.getMotorCurrentPosition(it).e2iOdom())
-
         }
         return wheelPositions
+    }
+
+    fun getOdomVelocities() : List<Double> {
+        val bulkData: RevBulkData = hubR.bulkInputData
+                ?: return listOf(0.0,0.0,0.0)
+
+        val wheelVelocities: MutableList<Double> = mutableListOf()
+
+        encoders.forEach {
+            wheelVelocities.add(bulkData.getMotorVelocity(it).e2iOdom())
+        }
+        return wheelVelocities
+    }
+
+    private fun internalUpdate() : Pose2D {
+        update()
+        return poseEstimate
+    }
+
+    fun goToWaypoint(waypoint: Waypoint) {
+        val (flp,blp,frp,brp) = goToPosition(internalUpdate(), Pose2D(0.0,0.0,0.0), waypoint, .2, true)
+        fl.power = flp
+        fr.power = frp
+        bl.power = blp
+        br.power = brp
+    }
+
+    fun followUpdate(follower: Follower) {
+        update()
+        val (flp,blp,frp,brp) = follower.update(poseEstimate)
+        fl.power = flp
+        fr.power = frp
+        bl.power = blp
+        br.power = brp
     }
 }

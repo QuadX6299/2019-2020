@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.Structs
 
 import org.firstinspires.ftc.teamcode.Lib.Util.minus
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 // sometimes acts as a vector so uhhh gl!
 
@@ -18,6 +15,10 @@ open class Point(var x: Double, var y: Double) {
 
     override fun toString(): String {
         return "($x,$y)"
+    }
+
+    fun atan() : Double {
+        return atan2(this.y, this.x)
     }
 
     fun rotate(angle : Double) : Point {

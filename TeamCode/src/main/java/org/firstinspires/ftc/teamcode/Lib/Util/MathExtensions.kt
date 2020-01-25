@@ -5,6 +5,11 @@ import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import java.lang.Math.copySign
 import kotlin.math.*
+import android.R.attr.radius
+import android.R.attr.y
+import android.R.attr.x
+
+
 
 fun Double.fuzzyEquals(b: Double, tolerance: Double): Boolean {
     return abs(this - b) < tolerance
@@ -20,7 +25,15 @@ fun MutableList<Double>.smooth(drop : Double) {
 
 infix operator fun Point.minus(other : Point) : Point = Point(this.x-other.x, this.y-other.y)
 
+infix operator fun Pose2D.minus(other: Pose2D) : Pose2D = Pose2D(this.x - other.x, this.y - other.y, this.heading - other.heading)
+
+infix operator fun Pose2D.div(scalar: Double) : Pose2D = Pose2D(this.x / scalar, this.y / scalar, this.heading / scalar)
+
+infix operator fun Pose2D.div(other: Pose2D) : Pose2D = Pose2D(this.x / other.x, this.y / other.y, this.heading / other.heading)
+
 infix operator fun Point.times(other : Double) : Point = Point(this.x * other, this.y * other)
+
+infix operator fun Pose2D.times(other: Pose2D) : Pose2D = Pose2D(this.x * other.x, this.y * other.y, this.heading * other.heading)
 
 infix operator fun Point.div(other : Double) : Point = Point(this.x/other, this.y/other)
 
@@ -102,48 +115,4 @@ fun Line.valueAt(other: Double): Double = this.x * other + this.y
 fun findLookAhead(roloc: Pose2D, closest: Point, end: Point) {
     //TODO find it
     roloc perpendicularProjectionOnto (closest lineTo end)
-}
-
-enum class MOVEMENTS(val speed: Double) {
-    NORMAL(.5),
-    THEQUICK(.7),
-    ACCURATE(.3)
-}
-
-// 8802s algorithm before we make our own. All credit goes to them
-fun PureController(pose2D: Pose2D, vel2D: Pose2D, target: Waypoint, speed: MOVEMENTS) : List<Double> {
-    val targetSDelta = (target - pose2D).magnitude
-    val targetTDeltaPoint = (pose2D - target)
-    val targetTDeltaAngle = atan2(targetTDeltaPoint.y, targetTDeltaPoint.x)
-    val translation = Point(cos(targetTDeltaAngle), sin(targetTDeltaAngle)) * targetSDelta
-    val tp = Pose2D(-translation.x, -translation.y, 0.0) * speed.speed
-
-    val reduction = Pose2D(6.0,6.0, PI / 2)
-    tp.x = tp.x / reduction.x
-    tp.y = tp.y / reduction.y
-
-    val forwardDelta = target - pose2D
-    val forwardT = atan2(forwardDelta.y, forwardDelta.x)
-    val backT = forwardT + PI
-    val relativeFront = (forwardT - pose2D.heading).wrap()
-    val relativeBack = (backT - pose2D.heading).wrap()
-    val closestAngle = if (abs(relativeFront) < abs(relativeBack)) {
-        relativeFront
-    } else {
-        relativeBack
-    }
-    val desired = if (target.heading.isNaN()) {
-        closestAngle
-    } else {
-        target.heading
-    }
-    val targetAngle = (desired - pose2D.heading).wrap()
-    tp.heading = targetAngle/ reduction.heading;
-
-    val fl = tp.x - tp.heading - tp.y
-    val bl = tp.x - tp.heading + tp.y
-    val fr = tp.x + tp.heading + tp.y
-    val br = tp.x + tp.heading - tp.y
-
-    return listOf(fl, fr, bl, br)
 }

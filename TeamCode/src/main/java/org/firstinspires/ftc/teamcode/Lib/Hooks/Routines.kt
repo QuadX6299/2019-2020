@@ -26,8 +26,10 @@ interface BlockingLoop : Routine {
 }
 
 class SingleRoutine constructor(val action: (Robot) -> Unit) : Singular {
+    var done = false
     override fun run(arg: Robot) {
         action(arg)
+        done = true
     }
 }
 

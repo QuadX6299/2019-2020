@@ -83,7 +83,7 @@ abstract class Odom1 constructor(offsets: List<Pose2D>) {
         return Pose2D(
                 fieldPose.x + fieldPoseDelta.x,
                 fieldPose.y + fieldPoseDelta.y,
-                (fieldPose.heading + fieldPoseDelta.heading).limitAngle2()
+                (fieldPose.heading + fieldPoseDelta.heading)
         )
     }
 

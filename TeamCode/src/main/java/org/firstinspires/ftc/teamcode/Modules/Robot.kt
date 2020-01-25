@@ -2,7 +2,12 @@ package org.firstinspires.ftc.teamcode.Modules
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
+import org.firstinspires.ftc.teamcode.Lib.Hooks.Routine
+import org.firstinspires.ftc.teamcode.Lib.Hooks.SingleRoutine
+import org.firstinspires.ftc.teamcode.Lib.Hooks.Singular
+import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
+import org.firstinspires.ftc.teamcode.Lib.Path.Follower
 import org.firstinspires.ftc.teamcode.Lib.Util.clip
 import kotlin.*
 import kotlin.math.*
@@ -37,10 +42,6 @@ class Robot constructor(val opMode: OpMode) {
     fun controls() {
         sixArcadeArc()
         g1()
-        driveTrain.update()
-        opMode.telemetry.addData("Perceived Location", driveTrain.poseEstimate.easyToRead())
-        opMode.telemetry.addData("Poses", driveTrain.getWheelPositions())
-        opMode.telemetry.update()
     }
     fun sixArcadeArc() {
         //checking for valid range to apply power (has to give greater power than .1)
@@ -76,6 +77,12 @@ class Robot constructor(val opMode: OpMode) {
             driveTrain.bl.power = 0.0
             driveTrain.br.power = 0.0
         }
+    }
 
+    fun followPath(path: List<Waypoint>) {
+        val follower: Follower = Follower(path, this, opMode)
+        while (true) {
+            driveTrain.followUpdate(follower)
+        }
     }
 }
