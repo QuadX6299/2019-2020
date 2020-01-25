@@ -142,4 +142,49 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         bl.power = blp
         br.power = brp
     }
+
+    fun List<ExpansionHubMotor>.runToPose(encoder : Double) {
+        this.forEach {
+            it.mode = DcMotor.RunMode.RUN_TO_POSITION
+            it.targetPosition = encoder.toInt()
+        }
+    }
+
+    fun setPower(p0 : Double, p1 : Double) {
+        left.forEach {
+            it.power = p0
+        }
+        right.forEach {
+            it.power = p1
+        }
+    }
+
+    fun motorsBusy() : Boolean {
+        var busy = true
+        all.forEach {
+            busy = busy && it.isBusy
+        }
+        return busy
+    }
+
+    fun encoderDrive(inches : Double, power : Double) {
+        val (l,r) = getEncoderAverage()
+        val newL = l + inches * odomTpr
+        val newR = r + inches * odomTpr
+        left.runToPose(newL)
+        right.runToPose(newR)
+        setPower(power, power)
+        while (motorsBusy()) {
+            val enc = getEncoderAverage()
+
+        }
+        setPower(0.0,0.0)
+    }
+
+    fun getEncoderAverage(): List<Double> {
+
+
+        return listOf(encoders[0].toDouble(),encoders[1].toDouble())
+
+    }
 }
