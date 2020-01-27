@@ -38,8 +38,8 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
         }
 
         var lookAhead : Waypoint? = null
-        for (i in index until path.size - 1) {
-            lookAhead = lookAhead(rloc, path[i], if (i + 1 == path.size) path[i] else path[i+1], closest.followDistance)
+        for (i in index until path.size) {
+            lookAhead = lookAhead(rloc, path[i], if (i + 1 == path.size) path[i] else path[i+1])
             if (lookAhead != null) {
                 break
             }
