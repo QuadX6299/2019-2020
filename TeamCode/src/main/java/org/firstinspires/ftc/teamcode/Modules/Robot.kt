@@ -25,6 +25,8 @@ class Robot constructor(val opMode: OpMode) {
         lateinit var gantry: Gantry
         lateinit var intake: Intake
         lateinit var lift : Lift
+        lateinit var autoGrabberRight: AutoGrabberRight
+
         fun init(Op: OpMode) {
             cap = Cap(Op)
             driveTrain = DriveTrain(Op)
@@ -32,6 +34,7 @@ class Robot constructor(val opMode: OpMode) {
             gantry = Gantry(Op)
             intake = Intake(Op)
             lift = Lift(Op)
+            autoGrabberRight = AutoGrabberRight(Op)
 
         }
     }

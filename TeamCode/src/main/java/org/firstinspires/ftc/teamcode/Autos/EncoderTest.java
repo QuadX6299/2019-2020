@@ -48,7 +48,7 @@ public class EncoderTest extends LinearOpMode {
         while (!isStopRequested()) {
             switch (state) {
                 case TOBLOCK:
-                    NRobot.AutoGrabberRight.rotatorDown();
+                    Robot.autoGrabberRight.rotatorDown();
                     Thread.sleep(200);
                     Robot.driveTrain.encoderStraight(22.0,.75);
                     Thread.sleep(200);
@@ -67,9 +67,9 @@ public class EncoderTest extends LinearOpMode {
                     state = States.COLLECT;
                     break;
                 case COLLECT:
-                    NRobot.AutoGrabberRight.grabberDown();
+                    Robot.autoGrabberRight.grabberDown();
                     Thread.sleep(400);
-                    NRobot.AutoGrabberRight.hold();
+                    Robot.autoGrabberRight.hold();
                     Thread.sleep(400);
                     Robot.driveTrain.encoderStrafe(-10.5,.8);
                     NRobot.DriveTrain.turnPIDAuto(.4, Math.PI / 2.0);
@@ -84,8 +84,8 @@ public class EncoderTest extends LinearOpMode {
                     } else {
                         Robot.driveTrain.encoderStraight(47.0,.75);
                     }
-                    NRobot.AutoGrabberRight.rotatorDown();
-                    NRobot.AutoGrabberRight.dropBlock();
+                    Robot.autoGrabberRight.rotatorDown();
+                    Robot.autoGrabberRight.dropBlock();
                     Thread.sleep(400);
                     state = States.DRIVETOSECOND;
                     break;
@@ -104,9 +104,9 @@ public class EncoderTest extends LinearOpMode {
                 case COLLECTSECOND:
                     Thread.sleep(300);
                     Robot.driveTrain.encoderStrafe(10.0,1.0);
-                    NRobot.AutoGrabberRight.clamp();
+                    Robot.autoGrabberRight.clamp();
                     Thread.sleep(400);
-                    NRobot.AutoGrabberRight.hold();
+                    Robot.autoGrabberRight.hold();
                     Robot.driveTrain.encoderStrafe(-12.0,1.0);
                     state = States.DROPSECONDOFF;
                     break;
@@ -122,7 +122,7 @@ public class EncoderTest extends LinearOpMode {
                         Robot.driveTrain.encoderStraight(47 + offset,.75);
 
                     }
-                    NRobot.AutoGrabberRight.dropBlock();
+                    Robot.autoGrabberRight.dropBlock();
                     Thread.sleep(300);
                     state = States.PARK;
                     break;
@@ -131,18 +131,18 @@ public class EncoderTest extends LinearOpMode {
                     Thread.sleep(200);
                     Robot.driveTrain.encoderStraight(12.0,1.0);
 
-                    NRobot.FoundationHook.up();
+                    Robot.foundationHooks.up();
                     Thread.sleep(200);
                     NRobot.DriveTrain.turnPID(.3, false, Math.PI);
                     Robot.driveTrain.encoderStraight(-15.0,1.0);
                     Robot.driveTrain.encoderStraight(-6.0,1.0);
-                    NRobot.FoundationHook.down();
+                    Robot.foundationHooks.down();
                     Thread.sleep(400);
                     Robot.driveTrain.encoderStraight(15.0,1.0);
                     NRobot.DriveTrain.turnPID(.5, false, (5 * Math.PI) / 4.0);
                     Robot.driveTrain.encoderStraight(12.0,1.0);
                     NRobot.DriveTrain.turnPID(.5, false, (3 *Math.PI) / 2.0);
-                    NRobot.FoundationHook.up();
+                    Robot.foundationHooks.up();
                     Robot.driveTrain.encoderStraight(-9.0,1.0);
                     Robot.driveTrain.encoderStrafe(23.0,1.0);
                     Robot.driveTrain.encoderStraight(30.0,1.0);
@@ -150,7 +150,7 @@ public class EncoderTest extends LinearOpMode {
                     state = States.DONE;
                     break;
                 case PARK:
-                    NRobot.AutoGrabberRight.store();
+                    Robot.autoGrabberRight.store();
                     Thread.sleep(500);
                     Robot.driveTrain.encoderStraight(-10.0,1.0);
 
