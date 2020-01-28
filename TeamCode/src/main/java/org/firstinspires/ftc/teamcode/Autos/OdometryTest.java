@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,24 +15,30 @@ import org.firstinspires.ftc.teamcode.Modules.Robot;
 
 import java.util.List;
 
-@TeleOp(name = "Odom Test", group = "TeleOp")
-public class OdometryTest extends OpMode {
+@Autonomous(name = "Odom Test", group = "Autonomous")
+public class OdometryTest extends LinearOpMode {
     Robot r;
-    Waypoint w = new Waypoint(20.0,0.0, 0.0, 10.0, null);
+    Waypoint w = new Waypoint(20.0,0.0, 0.0, 5.0, null);
     List<Waypoint> path;
 
-   public void init(){
+   public void runOpMode() {
        r = new Robot(this);
-       PathBuilder build = new PathBuilder(new Waypoint(0.0,0.0,20.0));
-       path = build.addPoint(new Waypoint(20.0,0.0, Double.NaN, 40.0, null))
-               .addPoint(new Waypoint(21.0,40.0, Double.NaN, 20.0, null))
-               .addPoint(new Waypoint(40.0, 50.0, Double.NaN, 20.0, null))
-               .addPoint(new Waypoint(70.0, 60.0, Double.NaN, 20.0, null))
+       PathBuilder build = new PathBuilder(new Waypoint(0.0,0.0,0.0,5.0, null));
+       path = build.addPoint(new Waypoint(20.0,0.0, 0.0, 5.0, null))
+               .addPoint(new Waypoint(40.0,20.0,0.0, 5.0, null))
+               .addPoint(new Waypoint(50.0,40.0, 0.0, 5.0, null))
                .build();
+       waitForStart();
+       Follower f = new Follower(path, r, this);
+       while (opModeIsActive()) {
+           Robot.driveTrain.update();
+           List<Double> powers = f.update(Robot.driveTrain.getPoseEstimate());
+           Robot.driveTrain.setPower(powers);
+           telemetry.addData("powers", powers);
+           telemetry.addData("pose", Robot.driveTrain.getPoseEstimate());
+           telemetry.update();
+       }
    }
 
-   public void loop(){
-       r.followPath(path);
-   }
 
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules
 
+import com.qualcomm.hardware.motors.GoBILDA5202Series
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -9,10 +10,10 @@ import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower
 import org.firstinspires.ftc.teamcode.Lib.Path.goToPosition
+import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Lib.Util.*
 import org.firstinspires.ftc.teamcode.Modules.Meta.Clock
-import org.firstinspires.ftc.teamcode.Modules.Meta.GoBILDA435
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
 import org.openftc.revextensions2.RevBulkData
@@ -31,7 +32,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
     val hubL : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java,  "hubLeft")
     val hubR : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
 
-    val motorType : MotorConfigurationType = MotorConfigurationType.getMotorType(GoBILDA435::class.java)
+    val motorType : MotorConfigurationType = MotorConfigurationType.getMotorType(GoBILDA5202Series::class.java)
 
     val fl : ExpansionHubMotor = opMode.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
     val bl : ExpansionHubMotor = opMode.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
@@ -62,37 +63,20 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         all.forEach {
             it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         }
+
+
     }
 
     fun Int.e2i() : Double = (wheelRadius * 2.0 * PI * gearRatio * this) / 383.6
 
     fun Int.e2iOdom() : Double = (odomRadius * 2.0 * PI * this) / odomTpr
 
+    fun Double.i2eOdom() : Int = ((this * odomTpr) / (2.0 * PI * odomRadius)).toInt()
+
     fun resetEncoders() {
         all.forEach {
             it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             it.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        }
-    }
-
-    @Throws(InterruptedException::class)
-    fun bulkEncoders() {
-        val bulkL = hubL.bulkInputData
-        val bulkR = hubR.bulkInputData
-
-        if (bulkL == null || bulkR == null) {
-            throw InterruptedException("Literally the bulks aren't there")
-        }
-
-        val leftEnc = mutableListOf<Int>()
-        val rightEnc = mutableListOf<Int>()
-
-        left.forEach {
-            bulkL.getMotorCurrentPosition(it)
-        }
-
-        right.forEach {
-            bulkR.getMotorCurrentPosition(it)
         }
     }
 
@@ -126,65 +110,33 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         return poseEstimate
     }
 
-    fun goToWaypoint(waypoint: Waypoint) {
-        val (flp,blp,frp,brp) = goToPosition(internalUpdate(), Pose2D(0.0,0.0,0.0), waypoint, .2, true)
-        fl.power = flp
-        fr.power = frp
-        bl.power = blp
-        br.power = brp
-    }
-
     fun followUpdate(follower: Follower) {
         update()
-        val (flp,blp,frp,brp) = follower.update(poseEstimate)
+        val (flp,frp,blp,brp) = follower.update(poseEstimate)
         fl.power = flp
         fr.power = frp
         bl.power = blp
         br.power = brp
     }
 
-    fun List<ExpansionHubMotor>.runToPose(encoder : Double) {
-        this.forEach {
-            it.mode = DcMotor.RunMode.RUN_TO_POSITION
-            it.targetPosition = encoder.toInt()
-        }
+    fun setPower(powers: List<Double>) {
+        val (flp,frp,blp,brp) = powers
+        fr.power = frp
+        fl.power = flp
+        bl.power = blp
+        br.power = brp
     }
 
-    fun setPower(p0 : Double, p1 : Double) {
-        left.forEach {
-            it.power = p0
+    fun encoderStraight(dist: Double, power: Double) {
+        val (l, r, c) = getWheelPositions()
+        var avgpose = (l + r) / 2.0
+        val targetDistance = avgpose + dist
+        val tp = if (dist < 0) -power else power
+        while (!avgpose.fuzzyEquals(targetDistance, .5)) {
+            val (el, er, ec) = getWheelPositions()
+            avgpose = (el + er) / 2.0
+            setPower(listOf(tp,tp,tp,tp))
         }
-        right.forEach {
-            it.power = p1
-        }
-    }
-
-    fun motorsBusy() : Boolean {
-        var busy = true
-        all.forEach {
-            busy = busy && it.isBusy
-        }
-        return busy
-    }
-
-    fun encoderDrive(inches : Double, power : Double) {
-        val (l,r) = getEncoderAverage()
-        val newL = l + inches * odomTpr
-        val newR = r + inches * odomTpr
-        left.runToPose(newL)
-        right.runToPose(newR)
-        setPower(power, power)
-        while (motorsBusy()) {
-            val enc = getEncoderAverage()
-
-        }
-        setPower(0.0,0.0)
-    }
-
-    fun getEncoderAverage(): List<Double> {
-
-
-        return listOf(encoders[0].toDouble(),encoders[1].toDouble())
-
+        setPower(listOf(0.0,0.0,0.0,0.0))
     }
 }

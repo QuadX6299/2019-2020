@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Lib.Marker.End
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Modules.Robot
+import kotlin.math.max
 import kotlin.math.min
 
 class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMode) {
@@ -39,17 +40,18 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
 
         var lookAhead : Waypoint? = null
         for (i in index until path.size) {
-            lookAhead = lookAhead(rloc, path[i], if (i + 1 == path.size) path[i] else path[i+1])
+            lookAhead = lookAhead(rloc, path[i], if (i == path.size - 1) path[i] else path[i+1])
             if (lookAhead != null) {
                 break
             }
         }
         op.telemetry.addData("lookA", lookAhead)
         op.telemetry.addData("Closest", closest)
-
-        op.telemetry.update()
-        requireNotNull(lookAhead) { "Lookahead null" }
-        return goToPosition(rloc, Pose2D(20.0,20.0,0.0), lookAhead, .2, true)
+        if (lookAhead == null) {
+            lookAhead = path[index + 1]
+        }
+        requireNotNull(lookAhead)
+        return goToPosition(rloc, Pose2D(20.0,20.0,0.0), lookAhead, .3, true)
     }
 
     fun closestWaypoint(rloc: Pose2D) {

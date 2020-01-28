@@ -60,8 +60,8 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
 
     val distance = target.minus(robotPose).magnitude
     val relAngle = robotPose.minus(target).atan() - robotPose.heading
-    val relX = distance * Math.cos(relAngle) + relSlip.x
-    val relY = distance * Math.sin(relAngle) + relSlip.y
+    val relX = distance * cos(relAngle) + relSlip.x
+    val relY = distance * sin(relAngle) + relSlip.y
 
     val translationPowers = Pose2D(-relX, -relY, 0.0) * (movementSpeed)
 
@@ -77,19 +77,31 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
     val backwardAngle = forwardAngle + Math.PI
     val angleToForward = (forwardAngle - robotPose.heading).wrap()
     val angleToBackward = (backwardAngle - robotPose.heading).wrap()
-    val autoAngle = if (Math.abs(angleToForward) < Math.abs(angleToBackward)) forwardAngle else backwardAngle
+    val autoAngle = if (abs(angleToForward) < abs(angleToBackward)) forwardAngle else backwardAngle
     val desiredAngle = if (target.heading.isNaN())
         autoAngle
     else
-        autoAngle
+        target.heading
 
     val angleToTarget = (desiredAngle - robotPose.heading).wrap()
     translationPowers.heading = angleToTarget / reductionDistances.heading
 
-    return listOf<Double>(
-            translationPowers.x - translationPowers.heading - translationPowers.y,
-            translationPowers.x - translationPowers.heading + translationPowers.y,
-            translationPowers.x + translationPowers.heading + translationPowers.y,
-            translationPowers.x + translationPowers.heading - translationPowers.y
+    var fl : Double = translationPowers.x - translationPowers.heading - translationPowers.y
+    var bl : Double = translationPowers.x - translationPowers.heading + translationPowers.y
+    var fr : Double = translationPowers.x + translationPowers.heading + translationPowers.y
+    var br : Double = translationPowers.x + translationPowers.heading - translationPowers.y
+    val max : Double = max(max(fl,fr), max(bl,br))
+    if (max > 1.0) {
+        fl /= max
+        bl /= max
+        fr /= max
+        br /= max
+    }
+
+    return listOf(
+            fl,
+            fr,
+            bl,
+            br
     )
 }

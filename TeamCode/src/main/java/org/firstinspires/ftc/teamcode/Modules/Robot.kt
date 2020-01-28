@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.Lib.Hooks.Routine
@@ -79,9 +80,9 @@ class Robot constructor(val opMode: OpMode) {
         }
     }
 
-    fun followPath(path: List<Waypoint>) {
-        val follower: Follower = Follower(path, this, opMode)
-        while (true) {
+    fun followPath(path: List<Waypoint>, op: LinearOpMode) {
+        val follower = Follower(path, this, opMode)
+        while (op.opModeIsActive()) {
             driveTrain.followUpdate(follower)
         }
     }

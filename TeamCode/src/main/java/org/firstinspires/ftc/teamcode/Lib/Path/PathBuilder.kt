@@ -30,7 +30,7 @@ class PathBuilder constructor(start: Waypoint) {
     }
 
     fun build() : List<Waypoint> {
-        return inject(path, 6.0)
+        return inject(path, 2.0)
     }
 
     fun inject(points: List<Waypoint>, spacing: Double) : List<Waypoint> {
