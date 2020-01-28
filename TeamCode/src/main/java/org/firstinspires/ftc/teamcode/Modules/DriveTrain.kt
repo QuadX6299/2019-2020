@@ -18,6 +18,8 @@ import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
 import org.openftc.revextensions2.RevBulkData
 import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.max
 
 
 class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
@@ -152,4 +154,25 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         }
         setPower(listOf(0.0,0.0,0.0,0.0))
     }
+
+    fun turnPrimitive(power : Double, right : Boolean) {
+        if (right) setPower(listOf(power, power,-power, -power)) else setPower(listOf(-power, -power,power,power))
+    }
+
+    fun turnPID(kP:Double, right:Boolean, angle:Double){
+        while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
+            val error : Double = abs(angle - IMU.heading())
+            turnPrimitive(max(error * kP,.1), right)
+        }
+        setPower(listOf(0.0,0.0,0.0,0.0))
+    }
+
+    fun turnPIDAuto(kP: Double, angle: Double) {
+        if (IMU.heading() > angle) {
+            turnPID(kP,true,angle)
+        } else {
+            turnPID(kP,false,angle)
+        }
+    }
+
 }
