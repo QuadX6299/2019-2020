@@ -1,4 +1,7 @@
-package org.firstinspires.ftc.teamcode.Autos;
+package org.firstinspires.ftc.teamcode.TeleOps;
+
+
+
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -6,19 +9,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Modules.Robot;
 
 
-@TeleOp (name="print", group = "Controls")
-public class OdometryPrint extends OpMode {
+@TeleOp(name = "pogchamp", group = "Controls")
+public class Controls extends OpMode {
     Robot r;
 
     @Override
     public void init() {
         r = new Robot(this);
+        // took out PID coefficients b/c messing with the strafing,
+        // can test later, not going to help rn though
     }
 
+    @Override
     public void loop() {
         r.controls();
-        Robot.driveTrain.update();
-        telemetry.addData("Estimated Position", Robot.driveTrain.getPoseEstimate().easyToRead());
-        telemetry.update();
     }
 }

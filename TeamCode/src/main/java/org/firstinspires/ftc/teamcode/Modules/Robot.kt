@@ -46,13 +46,13 @@ class Robot constructor(val opMode: OpMode) {
 
     fun controls() {
         g1()
-        newG2()
+        g2()
         intakeControls()
         liftControls()
         sixArcadeArc()
     }
 
-    fun newG2(){
+    fun g2(){
         if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
             gantry.setAssemblyPosition(Gantry.POSITIONS.COLLECTION)
         } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
