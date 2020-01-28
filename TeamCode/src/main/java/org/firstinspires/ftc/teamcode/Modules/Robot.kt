@@ -16,11 +16,23 @@ import kotlin.math.*
 class Robot constructor(val opMode: OpMode) {
     var flip = 1.0
     var g1prev : Gamepad = Gamepad()
+    var g2prev : Gamepad = Gamepad()
 
     companion object Modules {
-        lateinit var driveTrain : DriveTrain
+        lateinit var Cap : Cap
+        lateinit var DriveTrain : DriveTrain
+        lateinit var FoundationHook: FoundationHooks
+        lateinit var Gantry: Gantry
+        lateinit var Intake: Intake
+        lateinit var Lift : Lift
         fun init(Op: OpMode) {
-            driveTrain = DriveTrain(Op)
+            Cap = Cap(Op)
+            DriveTrain = DriveTrain(Op)
+            FoundationHook = FoundationHooks(Op)
+            Gantry = Gantry(Op)
+            Intake = Intake(Op)
+            Lift = Lift(Op)
+
         }
     }
 
@@ -29,20 +41,62 @@ class Robot constructor(val opMode: OpMode) {
         init(opMode)
     }
 
+    fun controls() {
+        g1()
+        newG2()
+        intakeControls()
+        liftControls()
+        sixArcadeArc()
+    }
+
+    fun newG2(){
+        if (opMode.gamepad2.a && g2prev.a != opMode.gamepad2.a){
+            Gantry.setAssemblyPosition(Gantry.POSITIONS.COLLECTION)
+        } else if (opMode.gamepad2.left_bumper && g2prev.left_bumper != opMode.gamepad2.left_bumper){
+            Gantry.toggleFrontClamp()
+        } else if (opMode.gamepad2.y && g2prev.y != opMode.gamepad2.y){
+            Gantry.setAssemblyPosition(Gantry.POSITIONS.GANTRYOUT)
+        } else if (opMode.gamepad2.right_bumper && g2prev.right_bumper != opMode.gamepad2.right_bumper){
+            Gantry.toggleBackClamp()
+        } else if (opMode.gamepad2.x && g2prev.x != opMode.gamepad2.x){
+            Gantry.frontClampOpen()
+        }
+        g2prev.copy(opMode.gamepad2)
+    }
+
     fun g1() {
         if (opMode.gamepad1.a && g1prev.a != opMode.gamepad1.a) {
             flip *= -1.0
         }
+        else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
+            FoundationHook.toggle()
+        } else if (opMode.gamepad1.x && g1prev.x != opMode.gamepad1.x){
+            Cap.toggle()
+        }
         g1prev.copy(opMode.gamepad1)
     }
 
-    fun reset() {
-        init(opMode)
+    fun liftControls() {
+        if (opMode.gamepad2.right_trigger > .1) {
+            Lift.power(-.2)
+        } else {
+            if (opMode.gamepad2.right_stick_y > 0.1) {
+                Lift.power(opMode.gamepad2.left_stick_y.toDouble())
+                //this is up
+            } else if (opMode.gamepad2.right_stick_y < 0.1) {
+                Lift.power(opMode.gamepad2.left_stick_y.toDouble())
+            } else {
+                Lift.power(0.0)
+            }
+        }
     }
 
-    fun controls() {
-        sixArcadeArc()
-        g1()
+    fun intakeControls() {
+        when {
+            opMode.gamepad1.left_bumper -> Intake.power(-1.0)
+            opMode.gamepad1.right_bumper -> Intake.power(1.0)
+            else -> Intake.power(0.0)
+        }
     }
     fun sixArcadeArc() {
         //checking for valid range to apply power (has to give greater power than .1)
@@ -66,24 +120,24 @@ class Robot constructor(val opMode: OpMode) {
                 BR /= max(max(abs(FL), abs(FR)), max(abs(BL), abs(BR)))
 
             }
-            driveTrain.fl.power = FL * flip
-            driveTrain.fr.power = FR * flip
-            driveTrain.bl.power = BL * flip
-            driveTrain.br.power = BR * flip
+            DriveTrain.fl.power = FL * flip
+            DriveTrain.fr.power = FR * flip
+            DriveTrain.bl.power = BL * flip
+            DriveTrain.br.power = BR * flip
 
 
         } else {
-            driveTrain.fl.power = 0.0
-            driveTrain.fr.power = 0.0
-            driveTrain.bl.power = 0.0
-            driveTrain.br.power = 0.0
+            DriveTrain.fl.power = 0.0
+            DriveTrain.fr.power = 0.0
+            DriveTrain.bl.power = 0.0
+            DriveTrain.br.power = 0.0
         }
     }
 
     fun followPath(path: List<Waypoint>, op: LinearOpMode) {
         val follower = Follower(path, this, opMode)
         while (op.opModeIsActive()) {
-            driveTrain.followUpdate(follower)
+            DriveTrain.followUpdate(follower)
         }
     }
 }
