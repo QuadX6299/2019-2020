@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.Modules.Robot;
 import org.firstinspires.ftc.teamcode.Modules.Vision.NewBitMap;
 import org.firstinspires.ftc.teamcode.R;
 
-@Autonomous(name = "enc test", group = "Autonomous")
-public class EncoderTest extends LinearOpMode {
+@Autonomous(name = "BlueFull", group = "Autonomous")
+public class BlueAuto extends LinearOpMode {
 
     States state = States.TOBLOCK;
     String visionPose = "C";
