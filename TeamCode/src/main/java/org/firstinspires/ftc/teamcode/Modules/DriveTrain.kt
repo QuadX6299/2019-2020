@@ -159,16 +159,18 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         if (right) setPower(listOf(power, power,-power, -power)) else setPower(listOf(-power, -power,power,power))
     }
 
+
     fun turnPID(kP:Double, right:Boolean, angle:Double){
-        while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
-            val error : Double = abs(angle - IMU.heading())
+        poseEstimate
+        while (!poseEstimate.heading.fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
+            val error : Double = abs(angle - poseEstimate.heading)
             turnPrimitive(max(error * kP,.1), right)
         }
         setPower(listOf(0.0,0.0,0.0,0.0))
     }
 
     fun turnPIDAuto(kP: Double, angle: Double) {
-        if (IMU.heading() > angle) {
+        if (poseEstimate.heading > angle) {
             turnPID(kP,true,angle)
         } else {
             turnPID(kP,false,angle)
