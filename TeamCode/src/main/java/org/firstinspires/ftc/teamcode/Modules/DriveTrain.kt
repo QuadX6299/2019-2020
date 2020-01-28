@@ -139,4 +139,17 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         }
         setPower(listOf(0.0,0.0,0.0,0.0))
     }
+
+    fun encoderStrafe(dist: Double, power: Double) {
+        val (l, r, c) = getWheelPositions()
+        var avgpose = c
+        val targetDistance = avgpose + dist
+        val tp = if (dist < 0) -power else power
+        while (!avgpose.fuzzyEquals(targetDistance, .5)) {
+            val (el, er, ec) = getWheelPositions()
+            avgpose = ec
+            setPower(listOf(tp,-tp,tp,-tp))
+        }
+        setPower(listOf(0.0,0.0,0.0,0.0))
+    }
 }
