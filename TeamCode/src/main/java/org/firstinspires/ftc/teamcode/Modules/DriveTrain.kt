@@ -4,15 +4,12 @@ import com.qualcomm.hardware.motors.GoBILDA5202Series
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
-import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower
-import org.firstinspires.ftc.teamcode.Lib.Path.goToPosition
-import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
-import org.firstinspires.ftc.teamcode.Lib.Util.*
+import org.firstinspires.ftc.teamcode.Lib.Util.d2r
+import org.firstinspires.ftc.teamcode.Lib.Util.fuzzyEquals
 import org.firstinspires.ftc.teamcode.Modules.Meta.Clock
 import org.openftc.revextensions2.ExpansionHubEx
 import org.openftc.revextensions2.ExpansionHubMotor
@@ -134,7 +131,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         var avgpose = (l + r) / 2.0
         val targetDistance = avgpose + dist
         val tp = if (dist < 0) -power else power
-        while (!avgpose.fuzzyEquals(targetDistance, .5)) {
+        while (!avgpose.fuzzyEquals(targetDistance, .2)) {
             val (el, er, ec) = getWheelPositions()
             avgpose = (el + er) / 2.0
             setPower(listOf(tp,tp,tp,tp))
@@ -147,30 +144,59 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         var avgpose = c
         val targetDistance = avgpose + dist
         val tp = if (dist < 0) -power else power
-        while (!avgpose.fuzzyEquals(targetDistance, .5)) {
+        while (!avgpose.fuzzyEquals(targetDistance, .2)) {
             val (el, er, ec) = getWheelPositions()
             avgpose = ec
-            setPower(listOf(tp,-tp,tp,-tp))
+            setPower(listOf(-tp,tp,tp,-tp))
+        }
+        setPower(listOf(0.0,0.0,0.0,0.0))
+    }
+
+    fun encoderStrafe(dist: Double, power: Double, test: OpMode) {
+        val (l, r, c) = getWheelPositions()
+        var avgpose = c
+        test.telemetry.addData("Avgpose", avgpose)
+        val targetDistance = avgpose + dist
+        test.telemetry.addData("Target", targetDistance)
+        Thread.sleep(2000)
+        val tp = if (dist < 0) -power else power
+        while (!avgpose.fuzzyEquals(targetDistance, .2)) {
+            test.telemetry.addData("Avgpose", avgpose)
+            test.telemetry.addData("Target", targetDistance)
+            test.telemetry.update()
+            val (el, er, ec) = getWheelPositions()
+            avgpose = ec
+            setPower(listOf(-tp,tp,tp,-tp))
         }
         setPower(listOf(0.0,0.0,0.0,0.0))
     }
 
     fun turnPrimitive(power : Double, right : Boolean) {
-        if (right) setPower(listOf(power, power,-power, -power)) else setPower(listOf(-power, -power,power,power))
+        if (right) setPower(listOf(power, -power,power, -power)) else setPower(listOf(-power, power, -power,power))
     }
 
 
+    fun turnPID(kP:Double, right:Boolean, angle:Double, op : OpMode){
+        while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
+            op.telemetry.addData("Heading", IMU.heading())
+            val error : Double = abs(angle - IMU.heading())
+            turnPrimitive(max(error * kP,.2), right)
+            op.telemetry.update()
+        }
+        op.telemetry.addData("Final", IMU.heading())
+        setPower(listOf(0.0,0.0,0.0,0.0))
+    }
+
     fun turnPID(kP:Double, right:Boolean, angle:Double){
-        poseEstimate
-        while (!poseEstimate.heading.fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
-            val error : Double = abs(angle - poseEstimate.heading)
-            turnPrimitive(max(error * kP,.1), right)
+        while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
+            val error : Double = abs(angle - IMU.heading())
+            turnPrimitive(max(error * kP,.2), right)
         }
         setPower(listOf(0.0,0.0,0.0,0.0))
     }
 
     fun turnPIDAuto(kP: Double, angle: Double) {
-        if (poseEstimate.heading > angle) {
+        if (IMU.heading() > angle) {
             turnPID(kP,true,angle)
         } else {
             turnPID(kP,false,angle)

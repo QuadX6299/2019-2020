@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.Marker.End;
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint;
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower;
@@ -22,6 +25,8 @@ public class OdometryTest extends LinearOpMode {
     List<Waypoint> path;
 
    public void runOpMode() {
+       FtcDashboard dash = FtcDashboard.getInstance();
+       Telemetry dashT = dash.getTelemetry();
        r = new Robot(this);
        PathBuilder build = new PathBuilder(new Waypoint(0.0,0.0,0.0,5.0, null));
        path = build.addPoint(new Waypoint(20.0,0.0, 0.0, 5.0, null))
@@ -31,6 +36,9 @@ public class OdometryTest extends LinearOpMode {
        waitForStart();
        Follower f = new Follower(path, r, this);
        while (opModeIsActive()) {
+           TelemetryPacket packet = new TelemetryPacket();
+           packet.fieldOverlay()
+                   .fillCircle(Robot.driveTrain.getPoseEstimate().getX(), Robot.driveTrain.getPoseEstimate().getY(), 1);
            Robot.driveTrain.update();
            List<Double> powers = f.update(Robot.driveTrain.getPoseEstimate());
            Robot.driveTrain.setPower(powers);

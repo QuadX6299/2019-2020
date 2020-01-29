@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.R;
 @Autonomous(name = "BlueFull", group = "Autonomous")
 public class BlueAuto extends LinearOpMode {
 
-    States state = States.TOBLOCK;
+    States state = States.FOUNDATIONQUICK;
     String visionPose = "C";
 
     double offset = 23.0;
@@ -40,7 +40,6 @@ public class BlueAuto extends LinearOpMode {
 
         Robot r = new Robot(this);
         waitForStart();
-        Robot.driveTrain.encoderStraight(10.0, .5);
 
 
         while (!isStopRequested()) {
@@ -125,25 +124,23 @@ public class BlueAuto extends LinearOpMode {
                     state = States.PARK;
                     break;
                 case FOUNDATIONQUICK:
-                    Robot.driveTrain.encoderStrafe(-14.0, 1.0);
+                    Robot.driveTrain.encoderStrafe(12.0, .5);
                     Thread.sleep(200);
-                    Robot.driveTrain.encoderStraight(12.0, 1.0);
+                    Robot.driveTrain.encoderStraight(10.0, .5);
 
                     Robot.foundationHooks.up();
                     Thread.sleep(200);
-                    Robot.driveTrain.turnPID(.3, false, Math.PI);
-                    Robot.driveTrain.encoderStraight(-15.0, 1.0);
-                    Robot.driveTrain.encoderStraight(-6.0, 1.0);
+                    Robot.driveTrain.turnPID(.12, true, Math.PI);
+                    Robot.driveTrain.encoderStraight(-2.0, .5);
+                    Robot.driveTrain.encoderStraight(-4.0, .3);
                     Robot.foundationHooks.down();
                     Thread.sleep(400);
-                    Robot.driveTrain.encoderStraight(15.0, 1.0);
-                    Robot.driveTrain.turnPID(.5, false, (5 * Math.PI) / 4.0);
-                    Robot.driveTrain.encoderStraight(12.0, 1.0);
-                    Robot.driveTrain.turnPID(.5, false, (3 * Math.PI) / 2.0);
+                    Robot.driveTrain.encoderStraight(10.0, .7);
+                    Robot.driveTrain.turnPID(.3, false, (5 * Math.PI) / 4.0);
+                    Robot.driveTrain.encoderStraight(10.0, .7);
+                    Robot.driveTrain.turnPID(.3, false, (3 * Math.PI) / 2.0);
                     Robot.foundationHooks.up();
-                    Robot.driveTrain.encoderStraight(-9.0, 1.0);
-                    Robot.driveTrain.encoderStrafe(23.0, 1.0);
-                    Robot.driveTrain.encoderStraight(30.0, 1.0);
+                    Robot.driveTrain.encoderStraight(-9.0, .5);
 
                     state = States.DONE;
                     break;

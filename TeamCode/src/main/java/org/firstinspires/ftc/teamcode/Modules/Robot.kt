@@ -35,7 +35,7 @@ class Robot constructor(val opMode: OpMode) {
             intake = Intake(Op)
             lift = Lift(Op)
             autoGrabberRight = AutoGrabberRight(Op)
-
+            IMU.init(Op)
         }
     }
 
@@ -83,10 +83,10 @@ class Robot constructor(val opMode: OpMode) {
         if (opMode.gamepad2.right_trigger > .1) {
             lift.power(-.2)
         } else {
-            if (opMode.gamepad2.right_stick_y > 0.1) {
+            if (opMode.gamepad2.left_stick_y > 0.1) {
                 lift.power(opMode.gamepad2.left_stick_y.toDouble())
                 //this is up
-            } else if (opMode.gamepad2.right_stick_y < 0.1) {
+            } else if (opMode.gamepad2.left_stick_y < 0.1) {
                 lift.power(opMode.gamepad2.left_stick_y.toDouble())
             } else {
                 lift.power(0.0)

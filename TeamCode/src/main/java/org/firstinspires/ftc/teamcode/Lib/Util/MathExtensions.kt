@@ -1,14 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.Util
 
-import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import java.lang.Math.copySign
 import kotlin.math.*
-import android.R.attr.radius
-import android.R.attr.y
-import android.R.attr.x
-
 
 
 fun Double.fuzzyEquals(b: Double, tolerance: Double): Boolean {
@@ -68,12 +63,12 @@ fun Double.limitAngle2() : Double  {
 }
 
 fun Double.wrap(): Double {
-    var remain = this % (PI * 2)
-    if (abs(remain) > PI) {
-        remain -= copySign(PI * 2, remain)
-        remain -= if (remain < 0) { -1 } else { 1 } * PI * 2
+    var negTauToTau: Double = this % (Math.PI * 2)
+
+    if (abs(negTauToTau) > Math.PI) {
+        negTauToTau -= (Math.PI * 2).withSign(negTauToTau)
     }
-    return remain
+    return negTauToTau
 }
 
 fun Double.toVector(angle : Double = 0.0) : Point {

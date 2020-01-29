@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.Path
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
@@ -59,7 +61,10 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
     val relSlip : Pose2D = SLIP_DISTANCES * (robotVelocity / (MAX_VELOCITY))
 
     val distance = target.minus(robotPose).magnitude
-    val relAngle = robotPose.minus(target).atan() - robotPose.heading
+    val relAngle = (robotPose.minus(target)).atan() - robotPose.heading
+    val dash = FtcDashboard.getInstance()
+    val p = TelemetryPacket()
+    p.put("Relative Angle", relAngle)
     val relX = distance * cos(relAngle) + relSlip.x
     val relY = distance * sin(relAngle) + relSlip.y
 

@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.openftc.revextensions2.ExpansionHubServo
 
 class AutoGrabberRight constructor(Op: OpMode) {
-    val grabberRight : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "grabberRight")
-    val rotatorRight : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "rotateRight")
+    val grabberRight : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "grabber")
+    val rotatorRight : ExpansionHubServo = Op.hardwareMap.get(ExpansionHubServo::class.java, "rotate")
 
 
     init {
