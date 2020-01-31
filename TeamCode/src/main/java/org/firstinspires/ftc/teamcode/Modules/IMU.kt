@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation
 import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle
+import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle2
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -24,7 +25,7 @@ object IMU {
 
     @JvmStatic
     fun heading() : Double {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle.toDouble().limitAngle()
+        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle.toDouble().limitAngle2()
     }
 
     @JvmStatic

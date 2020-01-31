@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.Marker
 
-class End(val tolS: Double, val tolT: Double, x: Double, y: Double, lookDistance: Double) : Waypoint(x,y, lookDist = lookDistance) {
-    constructor(tolS: Double, tolT: Double, waypoint: Waypoint) : this(tolS, tolT, waypoint.x, waypoint.y, waypoint.followDistance)
+import org.firstinspires.ftc.teamcode.Lib.Hooks.Routine
+
+class End(val tolS: Double, val tolT: Double, x: Double, y: Double, heading: Double, lookDistance: Double, hook: Routine? = null) : Waypoint(x,y, heading, lookDistance, hook) {
+    constructor(tolS: Double, tolT: Double, waypoint: Waypoint) : this(tolS, tolT, waypoint.x, waypoint.y, waypoint.heading,waypoint.followDistance, waypoint.hook)
 }

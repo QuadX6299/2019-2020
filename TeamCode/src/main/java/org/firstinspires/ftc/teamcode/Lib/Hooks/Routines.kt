@@ -5,6 +5,11 @@ import org.firstinspires.ftc.teamcode.Modules.Robot
 
 interface Routine { }
 
+interface Static : Routine {
+    fun exec()
+    fun isDone() : Boolean
+}
+
 interface Singular : Routine {
     fun run(arg: Robot)
 }
@@ -23,6 +28,18 @@ interface TimeBased : Routine {
 
 interface BlockingLoop : Routine {
     fun blockLoop(arg: Robot) : Boolean
+}
+
+class StaticRoutine constructor(val action: () -> Unit) : Static {
+    var done = false
+    override fun exec() {
+        action()
+        done = true
+    }
+
+    override fun isDone(): Boolean {
+        return true
+    }
 }
 
 class SingleRoutine constructor(val action: (Robot) -> Unit) : Singular {

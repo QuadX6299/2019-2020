@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
+import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
@@ -31,8 +32,6 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
     val hubL : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java,  "hubLeft")
     val hubR : ExpansionHubEx = opMode.hardwareMap.get(ExpansionHubEx::class.java, "hubRight")
 
-    val motorType : MotorConfigurationType = MotorConfigurationType.getMotorType(GoBILDA5202Series::class.java)
-
     val fl : ExpansionHubMotor = opMode.hardwareMap.get(ExpansionHubMotor::class.java, "fl")
     val bl : ExpansionHubMotor = opMode.hardwareMap.get(ExpansionHubMotor::class.java, "bl")
 
@@ -47,7 +46,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         const val gearRatio = 1.0
         const val dtWidth = 18.0
         // Left Right Center
-        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,-1.748, 0.0), Pose2D(-6.188, 1.748, 0.0), Pose2D(.006, .033, (-PI) / 2.0))
+        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,1.748, 0.0), Pose2D(-6.188, -1.748, 0.0), Pose2D(.006, .033, PI/2.0))
     }
 
     init {
@@ -104,11 +103,6 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         return wheelVelocities
     }
 
-    private fun internalUpdate() : Pose2D {
-        update()
-        return poseEstimate
-    }
-
     fun followUpdate(follower: Follower) {
         update()
         val (flp,frp,blp,brp) = follower.update(poseEstimate)
@@ -126,12 +120,17 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         br.power = brp
     }
 
+    fun stop() {
+        all.forEach { it.power = 0.0 }
+    }
+
     fun encoderStraight(dist: Double, power: Double) {
         val (l, r, c) = getWheelPositions()
         var avgpose = (l + r) / 2.0
         val targetDistance = avgpose + dist
         val tp = if (dist < 0) -power else power
         while (!avgpose.fuzzyEquals(targetDistance, .2)) {
+            update()
             val (el, er, ec) = getWheelPositions()
             avgpose = (el + er) / 2.0
             setPower(listOf(tp,tp,tp,tp))
@@ -145,6 +144,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         val targetDistance = avgpose + dist
         val tp = if (dist < 0) -power else power
         while (!avgpose.fuzzyEquals(targetDistance, .2)) {
+            update()
             val (el, er, ec) = getWheelPositions()
             avgpose = ec
             setPower(listOf(-tp,tp,tp,-tp))
@@ -189,6 +189,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
 
     fun turnPID(kP:Double, right:Boolean, angle:Double){
         while (!IMU.heading().fuzzyEquals(angle, 2.0.d2r()) && !Thread.interrupted()) {
+            update()
             val error : Double = abs(angle - IMU.heading())
             turnPrimitive(max(error * kP,.2), right)
         }
@@ -203,4 +204,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         }
     }
 
+    fun internalUpdate() : Pose2D {
+        return Pose2D(poseEstimate.x, poseEstimate.y, IMU.heading())
+    }
 }

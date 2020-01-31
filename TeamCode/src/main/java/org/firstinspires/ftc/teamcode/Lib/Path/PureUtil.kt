@@ -54,7 +54,7 @@ var MAX_VELOCITY = Pose2D(48.0, 60.0, 5.0)
 var SLIP_DISTANCES = Pose2D(1.0, 1.0, Math.toRadians(1.0))
 var MIN_TRANSLATION_POWERS = 0.3
 var GUNNING_REDUCTION_DISTANCES = Pose2D(6.0, 6.0, Math.PI / 2)
-var FINE_REDUCTION_DISTANCES = Pose2D(30.0, 30.0, Math.PI)
+var FINE_REDUCTION_DISTANCES = Pose2D(30.0, 30.0, Math.PI / 2)
 
 fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, movementSpeed: Double, gunning: Boolean): List<Double> {
 
@@ -62,9 +62,6 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
 
     val distance = target.minus(robotPose).magnitude
     val relAngle = (robotPose.minus(target)).atan() - robotPose.heading
-    val dash = FtcDashboard.getInstance()
-    val p = TelemetryPacket()
-    p.put("Relative Angle", relAngle)
     val relX = distance * cos(relAngle) + relSlip.x
     val relY = distance * sin(relAngle) + relSlip.y
 
@@ -96,7 +93,9 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
     var fr : Double = translationPowers.x + translationPowers.heading + translationPowers.y
     var br : Double = translationPowers.x + translationPowers.heading - translationPowers.y
     val max : Double = max(max(fl,fr), max(bl,br))
-    if (max > 1.0) {
+    val min : Double = min(min(fl,fr), min(bl,br))
+    val absMax = max(max, -min)
+    if (absMax > 1) {
         fl /= max
         bl /= max
         fr /= max

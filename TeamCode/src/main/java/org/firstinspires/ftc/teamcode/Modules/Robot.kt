@@ -19,7 +19,7 @@ class Robot constructor(val opMode: OpMode) {
     var g2prev : Gamepad = Gamepad()
 
     companion object Modules {
-        lateinit var cap : Cap
+//        lateinit var cap : Cap
         lateinit var driveTrain: DriveTrain
         lateinit var foundationHooks: FoundationHooks
         lateinit var gantry: Gantry
@@ -28,7 +28,7 @@ class Robot constructor(val opMode: OpMode) {
         lateinit var autoGrabberRight: AutoGrabberRight
 
         fun init(Op: OpMode) {
-            cap = Cap(Op)
+//            cap = Cap(Op)
             driveTrain = DriveTrain(Op)
             foundationHooks = FoundationHooks(Op)
             gantry = Gantry(Op)
@@ -74,23 +74,33 @@ class Robot constructor(val opMode: OpMode) {
         else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
             foundationHooks.toggle()
         } else if (opMode.gamepad1.x && g1prev.x != opMode.gamepad1.x){
-            cap.toggle()
+//            cap.toggle()
         }
         g1prev.copy(opMode.gamepad1)
     }
 
     fun liftControls() {
-        if (opMode.gamepad2.right_trigger > .1) {
-            lift.power(-.2)
-        } else {
-            if (opMode.gamepad2.left_stick_y > 0.1) {
-                lift.power(opMode.gamepad2.left_stick_y.toDouble())
-                //this is up
-            } else if (opMode.gamepad2.left_stick_y < 0.1) {
-                lift.power(opMode.gamepad2.left_stick_y.toDouble())
-            } else {
-                lift.power(0.0)
-            }
+//        if (opMode.gamepad2.right_trigger > .1) {
+//            lift.power(-.2)
+//        } else {
+//            if (opMode.gamepad2.left_stick_y > 0.1) {
+//                lift.power(opMode.gamepad2.left_stick_y.toDouble())
+//                //this is up
+//            } else if (opMode.gamepad2.left_stick_y < 0.1) {
+//                lift.power(opMode.gamepad2.left_stick_y.toDouble())
+//            } else {
+//                lift.power(0.0)
+//            }
+//        }
+        if (opMode.gamepad2.left_stick_y > 0.1) {
+            lift.power(opMode.gamepad2.left_stick_y.toDouble())
+        } else if (opMode.gamepad2.left_stick_y <  -0.1) {
+            lift.power(0.1)
+        } else if (opMode.gamepad2.right_stick_x > .1) {
+            lift.power(-opMode.gamepad2.right_stick_x.toDouble())
+        }
+        else {
+            lift.power(.03)
         }
     }
 
@@ -138,4 +148,8 @@ class Robot constructor(val opMode: OpMode) {
     }
 
 
+    fun follow(follower: Follower) {
+        driveTrain.update()
+        driveTrain.setPower(follower.update(driveTrain.internalUpdate()))
+    }
 }

@@ -11,28 +11,27 @@ import org.firstinspires.ftc.teamcode.Lib.Util.times
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun lookAhead(rloc: Pose2D, closest : Waypoint, next: Waypoint) : Waypoint? {
+fun lookAhead(rloc: Point, closest : Point, next: Point, follow: Double) : Pair<Double?, Double?> {
     val d = next - closest
     val f = closest - rloc
     val a = d dot d
     val b = 2.0 * (f dot d)
-    val c = (f dot f) - closest.followDistance.pow(2.0)
+    val c = (f dot f) - follow.pow(2.0)
     var discrim = b.pow(2.0) - 4.0 * a * c
     if (discrim < 0) {
-        return null
+        return Pair(null,null)
     } else {
         discrim = sqrt(discrim)
         val t0 : Double = (-b - discrim) / (2.0 * a)
         val t1 : Double = (-b + discrim) / (2.0 * a)
+        var one : Double? = null
+        var two : Double? = null
         if (t0 in 0.0..1.0) {
-            val pt = (closest + (d * t0))
-            return Waypoint(pt.x, pt.y, closest.heading, closest.followDistance, closest.hook)
+            one = t0
         }
         if (t1 in 0.0..1.0) {
-            val pt = (closest + (d * t1))
-            return Waypoint(pt.x, pt.y, closest.heading, closest.followDistance, closest.hook)
+            two = t1
         }
-        //no intersection
+        return Pair(one,two)
     }
-    return null
 }

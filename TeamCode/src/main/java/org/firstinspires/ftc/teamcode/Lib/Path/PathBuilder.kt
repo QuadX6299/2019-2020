@@ -6,10 +6,11 @@ import org.firstinspires.ftc.teamcode.Lib.Util.plus
 import org.firstinspires.ftc.teamcode.Lib.Util.times
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Util.minus
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PathBuilder constructor(start: Waypoint) {
+class PathBuilder constructor(start: Waypoint = Waypoint(0.0,0.0,0.0)) {
     val path : MutableList<Waypoint> = mutableListOf(start)
 
     fun addPoint(waypoint: Waypoint) : PathBuilder {
@@ -30,7 +31,7 @@ class PathBuilder constructor(start: Waypoint) {
     }
 
     fun build() : List<Waypoint> {
-        return inject(path, 2.0)
+        return path
     }
 
     fun inject(points: List<Waypoint>, spacing: Double) : List<Waypoint> {
@@ -39,14 +40,14 @@ class PathBuilder constructor(start: Waypoint) {
             val a = points[i]
             val b = points[i+1]
             var vi = b - a
-            val ptCount = Math.ceil(vi.magnitude / spacing)
+            val ptCount = ceil(vi.magnitude / spacing)
             vi = vi.unitVector * spacing
             for  (j in 0 until ptCount.toInt()) {
                 val pt = a + (vi * j.toDouble())
                 arr.add(Waypoint(pt.x, pt.y, a.heading, a.followDistance, if (j == 0) a.hook else null))
             }
         }
-        arr.add(End(2.0,.1,arr.last()))
+        arr.add(arr.last())
         return arr
     }
 }
