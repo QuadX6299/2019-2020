@@ -24,7 +24,7 @@ public class TurnTest extends LinearOpMode {
    public void runOpMode() {
        Robot r = new Robot(this);
        waitForStart();
-       Robot.driveTrain.turnPID(kp, true, angle, this);
+       Robot.autoGrabberRight.rotatorDown();
    }
 
 

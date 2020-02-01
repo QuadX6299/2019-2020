@@ -17,24 +17,27 @@ class Robot constructor(val opMode: OpMode) {
     var flip = 1.0
     var g1prev : Gamepad = Gamepad()
     var g2prev : Gamepad = Gamepad()
+    var feedforward : Boolean = false
 
     companion object Modules {
-//        lateinit var cap : Cap
+        lateinit var cap : Cap
         lateinit var driveTrain: DriveTrain
         lateinit var foundationHooks: FoundationHooks
         lateinit var gantry: Gantry
         lateinit var intake: Intake
         lateinit var lift : Lift
         lateinit var autoGrabberRight: AutoGrabberRight
+        lateinit var autoGrabberLeft: AutoGrabberLeft
 
         fun init(Op: OpMode) {
-//            cap = Cap(Op)
+            cap = Cap(Op)
             driveTrain = DriveTrain(Op)
             foundationHooks = FoundationHooks(Op)
             gantry = Gantry(Op)
             intake = Intake(Op)
             lift = Lift(Op)
             autoGrabberRight = AutoGrabberRight(Op)
+            autoGrabberLeft = AutoGrabberLeft(Op)
             IMU.init(Op)
         }
     }
@@ -45,10 +48,10 @@ class Robot constructor(val opMode: OpMode) {
     }
 
     fun controls() {
+        liftControls()
         g1()
         g2()
         intakeControls()
-        liftControls()
         sixArcadeArc()
     }
 
@@ -74,33 +77,24 @@ class Robot constructor(val opMode: OpMode) {
         else if (opMode.gamepad1.dpad_up && g1prev.dpad_up != opMode.gamepad1.dpad_up) {
             foundationHooks.toggle()
         } else if (opMode.gamepad1.x && g1prev.x != opMode.gamepad1.x){
-//            cap.toggle()
+            cap.toggle()
         }
         g1prev.copy(opMode.gamepad1)
     }
 
     fun liftControls() {
-//        if (opMode.gamepad2.right_trigger > .1) {
-//            lift.power(-.2)
-//        } else {
-//            if (opMode.gamepad2.left_stick_y > 0.1) {
-//                lift.power(opMode.gamepad2.left_stick_y.toDouble())
-//                //this is up
-//            } else if (opMode.gamepad2.left_stick_y < 0.1) {
-//                lift.power(opMode.gamepad2.left_stick_y.toDouble())
-//            } else {
-//                lift.power(0.0)
-//            }
-//        }
-        if (opMode.gamepad2.left_stick_y > 0.1) {
+        if (opMode.gamepad2.left_stick_y < -0.1) {
             lift.power(opMode.gamepad2.left_stick_y.toDouble())
-        } else if (opMode.gamepad2.left_stick_y <  -0.1) {
-            lift.power(0.1)
+            feedforward = true
+        } else if (opMode.gamepad2.left_stick_y > 0.1) {
+            lift.power(-0.05)
+            feedforward = false
         } else if (opMode.gamepad2.right_stick_x > .1) {
-            lift.power(-opMode.gamepad2.right_stick_x.toDouble())
+            lift.power(opMode.gamepad2.right_stick_x.toDouble())
+            feedforward = false
         }
         else {
-            lift.power(.03)
+            lift.power(if (feedforward) -.2 else 0.0)
         }
     }
 

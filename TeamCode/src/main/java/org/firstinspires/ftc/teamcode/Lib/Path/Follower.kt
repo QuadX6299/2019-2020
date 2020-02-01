@@ -5,10 +5,7 @@ import org.firstinspires.ftc.teamcode.Lib.Hooks.BlockingLoop
 import org.firstinspires.ftc.teamcode.Lib.Hooks.SingleRoutine
 import org.firstinspires.ftc.teamcode.Lib.Hooks.Static
 import org.firstinspires.ftc.teamcode.Lib.Hooks.StaticRoutine
-import org.firstinspires.ftc.teamcode.Lib.Marker.Accurate
-import org.firstinspires.ftc.teamcode.Lib.Marker.End
-import org.firstinspires.ftc.teamcode.Lib.Marker.SpeedPoint
-import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
+import org.firstinspires.ftc.teamcode.Lib.Marker.*
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Lib.Util.minus
@@ -51,6 +48,17 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
                 if (closest.hook != null) {
                     if (!(closest.hook as Static).isDone()) return goToPosition(rloc, Pose2D(10.0,10.0,0.0), closest, .3, false)
                 }
+            }
+            is SpeedEnd -> {
+                if (rloc distance closest < closest.tolS) {
+                    done = true
+                    op.telemetry.addData("collect done ", true)
+                    op.telemetry.update()
+                    return listOf(0.0,0.0,0.0,0.0)
+                }
+                op.telemetry.addData("dist ", rloc distance closest)
+                op.telemetry.update()
+                return goToPosition(rloc, Pose2D(10.0,10.0,0.0), closest, .7, true)
             }
             is End -> {
                 if (rloc distance closest < closest.tolS) {

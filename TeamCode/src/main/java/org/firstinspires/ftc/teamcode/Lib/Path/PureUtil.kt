@@ -109,3 +109,24 @@ fun goToPosition(robotPose: Pose2D, robotVelocity: Pose2D, target: Waypoint, mov
             br
     )
 }
+
+fun PureController(rloc: Pose2D, target: Waypoint, fast: Boolean, speed: Double) {
+    val distance = (target - rloc).magnitude
+    val angle = (rloc - target).atan() - rloc.heading
+    val relVector = Pose2D(-1 * distance * cos(angle), -1 * distance * sin(angle))
+
+    if (relVector.magnitude < .3) {
+        relVector * (.3 / relVector.magnitude)
+    }
+
+    val pog : Double = ({
+        if (target.heading.isNaN())  {
+            val angleToPt = (target - rloc).atan()
+            if (abs((angleToPt-rloc.heading).wrap()) < abs((angleToPt + PI) - rloc.heading.wrap())) angleToPt else angleToPt + PI
+        } else {
+            target.heading
+        }
+    }() - rloc.heading).wrap()
+
+    relVector.heading = pog
+}

@@ -12,19 +12,10 @@ class Lift constructor(Op : OpMode) {
     init {
         liftL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         liftR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
-        liftL.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        liftR.mode = DcMotor.RunMode.RUN_USING_ENCODER
-
     }
 
     fun power(power : Double) {
         liftL.power = power
         liftR.power = power
-    }
-
-    fun stopLift() {
-        liftL.power = 0.0
-        liftR.power = 0.0
     }
 }

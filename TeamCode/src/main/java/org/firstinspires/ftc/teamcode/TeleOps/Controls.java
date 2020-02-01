@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Modules.Robot;
 
 
-@TeleOp(name = "pogchamp", group = "Controls")
+@TeleOp(name = "pogchampers", group = "Controls")
 public class Controls extends OpMode {
     Robot r;
 
