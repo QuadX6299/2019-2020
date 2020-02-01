@@ -48,13 +48,6 @@ fun Double.r2d() : Double = this * (180/ PI)
 
 fun Double.d2r() : Double = this * (PI/180)
 
-fun Double.clip(vi : Double = 0.0, vf : Double = 0.0) = max(min(vf, this), vi)
-
-fun Double.limitAngle() : Double = if (this < 0) {
-    (PI - abs(this)) + PI
-} else {
-    this
-}
 
 fun Double.limitAngle2() : Double  {
     var modifiedAngle = this % (2 * PI)
@@ -63,51 +56,37 @@ fun Double.limitAngle2() : Double  {
 }
 
 fun Double.wrap(): Double {
-    var negTauToTau: Double = this % (Math.PI * 2)
-
-    if (abs(negTauToTau) > Math.PI) {
-        negTauToTau -= (Math.PI * 2).withSign(negTauToTau)
+    var modify: Double = this % (Math.PI * 2)
+    if (abs(modify) > Math.PI) {
+        modify -= (Math.PI * 2).withSign(modify)
     }
-    return negTauToTau
+    return modify
 }
 
-fun Double.toVector(angle : Double = 0.0) : Point {
-    val x2 = this * cos(angle)
-    val y2 = this * sin(angle)
-    return Point(x2, y2)
-}
-
-typealias Line = Point
-
-// y = mx + b form
-// x = m, y = b
-
-
-@Throws(InterruptedException::class)
-infix fun Line.intersectionWith(other: Line): Line {
-    if (this.x == other.x || this.y == other.y) {
-        throw InterruptedException("Silly goose the lines are similar")
-    } else {
-        val intercept = (other.y - this.y) / (this.x - other.x)
-        return Line(intercept, this.valueAt(intercept))
+fun Pose2D.toPowers() : List<Double> {
+    var fl : Double = this.x - this.heading - this.y
+    var bl : Double = this.x - this.heading + this.y
+    var fr : Double = this.x + this.heading + this.y
+    var br : Double = this.x + this.heading - this.y
+    val max : Double = max(max(fl,fr), max(bl,br))
+    val min : Double = min(min(fl,fr), min(bl,br))
+    val absMax = max(max, -min)
+    if (absMax > 1) {
+        fl /= max
+        bl /= max
+        fr /= max
+        br /= max
     }
+
+    return listOf(
+            fl,
+            fr,
+            bl,
+            br
+    )
 }
 
-infix fun Point.lineTo(other: Point): Point {
-    val slope = (other.y - this.y) / (other.x - this.x)
-    val intercept = this.y - this.x * slope
-    return Point(slope, intercept)
-}
 
-@Throws(InterruptedException::class)
-infix fun Point.perpendicularProjectionOnto(other: Line) {
-    val perpSlope = -1.0 / other.x
-    other intersectionWith Point(perpSlope, this.y - this.x * perpSlope)
-}
 
-fun Line.valueAt(other: Double): Double = this.x * other + this.y
 
-fun findLookAhead(roloc: Pose2D, closest: Point, end: Point) {
-    //TODO find it
-    roloc perpendicularProjectionOnto (closest lineTo end)
-}
+

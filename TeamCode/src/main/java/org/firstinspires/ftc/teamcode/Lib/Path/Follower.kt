@@ -46,7 +46,7 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
         when (closest) {
             is Accurate -> {
                 if (closest.hook != null) {
-                    if (!(closest.hook as Static).isDone()) return goToPosition(rloc, Pose2D(10.0,10.0,0.0), closest, .3, false)
+                    if (!(closest.hook as Static).isDone()) return PureController(rloc, closest, false, .3, Pose2D(10.0,10.0,0.0))
                 }
             }
             is SpeedEnd -> {
@@ -58,7 +58,7 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
                 }
                 op.telemetry.addData("dist ", rloc distance closest)
                 op.telemetry.update()
-                return goToPosition(rloc, Pose2D(10.0,10.0,0.0), closest, .7, true)
+                return PureController(rloc, closest, true, .7, Pose2D(10.0,10.0,0.0))
             }
             is End -> {
                 if (rloc distance closest < closest.tolS) {
@@ -69,13 +69,13 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
                 }
                 op.telemetry.addData("dist ", rloc distance closest)
                 op.telemetry.update()
-                return goToPosition(rloc, Pose2D(10.0,10.0,0.0), closest, 1.0, false)
+                return PureController(rloc, closest, false, 1.0, Pose2D(10.0,10.0,0.0))
             }
         }
 
         var fractionalIndex : Double = Double.MIN_VALUE
 
-        for (i in 0 until path.size) {
+        for (i in path.indices) {
             if (path[i] is Accurate && (path[i] as Accurate).hook != null && !((path[i] as Accurate).hook as Static).isDone()) {
                 op.telemetry.addLine("Accurate in")
                 op.telemetry.update()
@@ -101,23 +101,7 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
 
         val waypoint = Waypoint(lookAheadPoint.x, lookAheadPoint.y, closest.heading, closest.followDistance, closest.hook)
         if (fractionalIndex < index) op.telemetry.addLine("Look ahead not found")
-        return goToPosition(rloc, Pose2D(10.0,10.0,0.0), if (fractionalIndex < index) closest else waypoint, if (closest is SpeedPoint) closest.speed else .5, true)
-//        var lookAhead : Waypoint? = null
-//        for (i in index until path.size) {
-//            lookAhead = lookAhead(rloc, path[i], if (i == path.size - 1) path[i] else path[i+1])
-//            if (lookAhead != null) {
-//                break
-//            }
-//        }
-//        if (lookAhead == null) {
-//            op.telemetry.addData("Look Ahead Not Found: ", lookAhead)
-//            op.telemetry.update()
-//            lookAhead = path[index + 1]
-//        }
-//        if (closest is Accurate) {
-//            goToPosition(rloc, Pose2D(10.0,10.0,0.0), lookAhead, .7, false)
-//        }
-//        return goToPosition(rloc, Pose2D(10.0,10.0,0.0), lookAhead, .7, true)
+        return PureController(rloc, if (fractionalIndex < index) closest else waypoint, true, if (closest is SpeedPoint) closest.speed else .5, Pose2D(10.0,10.0,0.0))
     }
 
     fun closestWaypoint(rloc: Pose2D) {
