@@ -1,15 +1,8 @@
 package org.firstinspires.ftc.teamcode.Modules
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.Gamepad
-import org.firstinspires.ftc.teamcode.Lib.Hooks.Routine
-import org.firstinspires.ftc.teamcode.Lib.Hooks.SingleRoutine
-import org.firstinspires.ftc.teamcode.Lib.Hooks.Singular
-import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
-import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower
-import org.firstinspires.ftc.teamcode.Lib.Util.clip
 import kotlin.*
 import kotlin.math.*
 

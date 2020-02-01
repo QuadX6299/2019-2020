@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Lib.Path
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
@@ -25,7 +23,7 @@ fun PureController(rloc: Pose2D, target: Waypoint, fast: Boolean, speed: Double,
     val pog : Double = ({
         if (target.heading.isNaN())  {
             val angleToPt = (target - rloc).atan()
-            if (abs((angleToPt-rloc.heading).wrap()) < abs((angleToPt + PI) - rloc.heading.wrap())) angleToPt else angleToPt + PI
+            if (abs((angleToPt-rloc.heading).wrap()) < abs(((angleToPt + PI) - rloc.heading).wrap())) angleToPt else angleToPt + PI
         } else {
             target.heading
         }

@@ -7,7 +7,6 @@ import org.apache.commons.math3.linear.MatrixUtils
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Lib.Util.fuzzyEquals
-import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle
 import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle2
 import org.firstinspires.ftc.teamcode.Lib.Util.wrap
 import kotlin.math.atan2
@@ -51,8 +50,6 @@ abstract class Odom1 constructor(offsets: List<Pose2D>) {
     fun update() {
         val wheelPositions = getWheelPositions()
         if (lastWheelPositions.isNotEmpty()) {
-            val (pl, pr, pc) = wheelPositions
-            val (l, r, c) = wheelPositions
             val wheelDeltas = wheelPositions
                     .zip(lastWheelPositions)
                     .map { it.first - it.second }

@@ -10,14 +10,6 @@ fun Double.fuzzyEquals(b: Double, tolerance: Double): Boolean {
     return abs(this - b) < tolerance
 }
 
-//TODO create a function that soothes out an array of double so that the maximum delta between two
-//indices is drop
-fun MutableList<Double>.smooth(drop : Double) {
-    for (i in this) {
-        println(i)
-    }
-}
-
 infix operator fun Point.minus(other : Point) : Point = Point(this.x-other.x, this.y-other.y)
 
 infix operator fun Pose2D.minus(other: Pose2D) : Pose2D = Pose2D(this.x - other.x, this.y - other.y, this.heading - other.heading)

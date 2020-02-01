@@ -6,7 +6,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation
-import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle
 import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle2
 import kotlin.math.atan2
 import kotlin.math.cos
