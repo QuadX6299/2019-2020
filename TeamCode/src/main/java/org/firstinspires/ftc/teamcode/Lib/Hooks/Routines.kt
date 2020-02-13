@@ -1,13 +1,19 @@
 package org.firstinspires.ftc.teamcode.Lib.Hooks
 
+import android.os.Handler
+import android.os.Looper
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
+import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
+import org.firstinspires.ftc.teamcode.Lib.Util.wrap
 import org.firstinspires.ftc.teamcode.Modules.Robot
+import kotlin.math.abs
 
 interface Routine { }
 
 interface Static : Routine {
     fun exec()
     fun isDone() : Boolean
+    fun isRun() : Boolean
 }
 
 interface Singular : Routine {
@@ -32,13 +38,18 @@ interface BlockingLoop : Routine {
 
 class StaticRoutine constructor(val action: () -> Unit) : Static {
     var done = false
+    var run = false
     override fun exec() {
         action()
-        done = true
+        run = true
     }
 
     override fun isDone(): Boolean {
-        return true
+        return done
+    }
+
+    override fun isRun(): Boolean {
+        return run
     }
 }
 
@@ -47,6 +58,57 @@ class SingleRoutine constructor(val action: (Robot) -> Unit) : Singular {
     override fun run(arg: Robot) {
         action(arg)
         done = true
+    }
+}
+
+class DelayedRoutine constructor(val action: () -> Unit, val delay: Long) : Static {
+    var done = false
+    var run = false
+    override fun exec() {
+        if (run) { return }
+        action()
+        run = true
+        Handler(Looper.getMainLooper()).postDelayed({
+            done = true
+        }, delay)
+    }
+
+    override fun isDone(): Boolean {
+        return done
+    }
+
+    override fun isRun(): Boolean {
+        return run
+    }
+}
+
+class ArrivalRoutine constructor(val action: () -> Unit, val delay: Long, val tolS : Double) : Static {
+    var done = false
+    var run = false
+    var close = false
+    fun update(rloc: Pose2D, target: Waypoint) {
+        if (abs(rloc distance target) < tolS) {
+            close = true
+        }
+    }
+
+    override fun exec() {
+        if (run) return
+        if (close) {
+            action()
+            run = true
+            Handler(Looper.getMainLooper()).postDelayed({
+                done = true
+            }, delay)
+        }
+    }
+
+    override fun isDone() : Boolean {
+        return done
+    }
+
+    override fun isRun(): Boolean {
+        return run
     }
 }
 

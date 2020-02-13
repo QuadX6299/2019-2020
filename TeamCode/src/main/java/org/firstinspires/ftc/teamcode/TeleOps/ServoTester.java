@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,7 +12,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class ServoTester extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Servo s = hardwareMap.get(Servo.class, "cap");
+        Servo s = hardwareMap.get(Servo.class, "grabber");
+
+        DcMotorEx yourMotor = hardwareMap.get(DcMotorEx.class, "motor");
+        yourMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        yourMotor.setPIDFCoefficients(yourMotor.getMode(), new PIDFCoefficients(25.0,0.0,20.0,0.0));
+
         ElapsedTime pt = new ElapsedTime();
         s.setPosition(0.0);
         waitForStart();

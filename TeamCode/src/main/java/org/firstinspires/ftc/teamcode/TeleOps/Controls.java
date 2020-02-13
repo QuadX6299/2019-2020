@@ -23,5 +23,6 @@ public class Controls extends OpMode {
     @Override
     public void loop() {
         r.controls();
+        Robot.driveTrain.update();
     }
 }

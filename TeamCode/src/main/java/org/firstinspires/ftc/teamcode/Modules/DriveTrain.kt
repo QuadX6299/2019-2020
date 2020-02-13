@@ -21,9 +21,6 @@ import kotlin.math.max
 
 
 class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
-    var lastPose2D : Pose2D = Pose2D(0.0,0.0,0.0)
-    var lastTime = Clock.system().seconds()
-
     val left : List<ExpansionHubMotor>
     val right : List<ExpansionHubMotor>
     val all : List<ExpansionHubMotor>

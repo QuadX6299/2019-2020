@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.Path
 
+import android.os.Handler
+import android.os.Looper
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import org.firstinspires.ftc.teamcode.Lib.Hooks.BlockingLoop
-import org.firstinspires.ftc.teamcode.Lib.Hooks.SingleRoutine
-import org.firstinspires.ftc.teamcode.Lib.Hooks.Static
-import org.firstinspires.ftc.teamcode.Lib.Hooks.StaticRoutine
+import org.firstinspires.ftc.teamcode.Lib.Hooks.*
 import org.firstinspires.ftc.teamcode.Lib.Marker.*
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
@@ -12,13 +11,15 @@ import org.firstinspires.ftc.teamcode.Lib.Util.minus
 import org.firstinspires.ftc.teamcode.Lib.Util.plus
 import org.firstinspires.ftc.teamcode.Lib.Util.times
 import org.firstinspires.ftc.teamcode.Modules.Robot
+import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
 class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMode) {
     var done = false
-    var index: Int = 0
+    var index : Int = 0
+    var lastFracdex : Double = 0.0
 
 
     fun update(rloc: Pose2D): List<Double> {
@@ -30,7 +31,12 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
 
 
         when (closest.hook) {
-            is StaticRoutine -> {
+            is Static -> {
+                op.telemetry.addData("Static done? ", closest.hook.isDone())
+                if (closest.hook is ArrivalRoutine) {
+                    op.telemetry.addData("Distance? ", rloc distance closest)
+                    closest.hook.update(rloc, closest)
+                }
                 closest.hook.exec()
             }
             is BlockingLoop -> {
@@ -44,64 +50,48 @@ class Follower constructor(val path: List<Waypoint>, val r: Robot, val op: OpMod
         }
 
         when (closest) {
-            is Accurate -> {
-                if (closest.hook != null) {
-                    if (!(closest.hook as Static).isDone()) return PureController(rloc, closest, false, .3, Pose2D(10.0,10.0,0.0))
-                }
-            }
-            is SpeedEnd -> {
-                if (rloc distance closest < closest.tolS) {
-                    done = true
-                    op.telemetry.addData("collect done ", true)
-                    op.telemetry.update()
-                    return listOf(0.0,0.0,0.0,0.0)
-                }
-                op.telemetry.addData("dist ", rloc distance closest)
-                op.telemetry.update()
-                return PureController(rloc, closest, true, .7, Pose2D(10.0,10.0,0.0))
-            }
-            is End -> {
-                if (rloc distance closest < closest.tolS) {
-                    done = true
-                    op.telemetry.addData("collect done ", true)
-                    op.telemetry.update()
-                    return listOf(0.0,0.0,0.0,0.0)
-                }
-                op.telemetry.addData("dist ", rloc distance closest)
-                op.telemetry.update()
-                return PureController(rloc, closest, false, 1.0, Pose2D(10.0,10.0,0.0))
+            is Interrupt -> {
+                closest.hook as Static
+                op.telemetry.addData("Routine Done? ", (closest.hook).isDone())
             }
         }
 
-        var fractionalIndex : Double = Double.MIN_VALUE
+        val minheap : PriorityQueue<Double> = PriorityQueue()
 
         for (i in path.indices) {
-            if (path[i] is Accurate && (path[i] as Accurate).hook != null && !((path[i] as Accurate).hook as Static).isDone()) {
-                op.telemetry.addLine("Accurate in")
-                op.telemetry.update()
-                fractionalIndex = i.toDouble()
+            if (path[i] is Interrupt && !(path[i].hook as Static).isDone()) {
+                if (rloc distance path[i] < closest.followDistance) {
+                    return PureController(rloc, path[i], true, 1.0)
+                }
+                minheap.add(i.toDouble())
                 break
             }
             val indicies = lookAhead(rloc, path[i], if (i == path.size - 1) path[i] else path[i+1], closest.followDistance)
             if (indicies.first != null) {
-                fractionalIndex = max(fractionalIndex, indicies.first!! + i)
+                val pog = indicies.first!! + i
+                if (pog > lastFracdex) {
+                    minheap.add(pog)
+                }
             }
             if (indicies.second != null) {
-                fractionalIndex = max(fractionalIndex, indicies.second!! + i)
+                val pog = indicies.second!! + i
+                if (pog > lastFracdex) {
+                    minheap.add(pog)
+                }
             }
         }
-
-        val aheadIndex = floor(fractionalIndex).toInt()
-
-        val lookAheadPoint = path[aheadIndex] + (path[aheadIndex+1] - path[aheadIndex]) * (fractionalIndex - aheadIndex)
-        op.telemetry.addData("Fractional Index ", fractionalIndex)
-        op.telemetry.addData("Look ", lookAheadPoint)
-        op.telemetry.addData("Closest ", closest)
-        op.telemetry.update()
-
-        val waypoint = Waypoint(lookAheadPoint.x, lookAheadPoint.y, closest.heading, closest.followDistance, closest.hook)
-        if (fractionalIndex < index) op.telemetry.addLine("Look ahead not found")
-        return PureController(rloc, if (fractionalIndex < index) closest else waypoint, true, if (closest is SpeedPoint) closest.speed else .5, Pose2D(10.0,10.0,0.0))
+        if (minheap.peek() != null) {
+            val fractionalIndex : Double = if (minheap.peek() == 0.0) index.toDouble() else minheap.peek()
+            val aheadIndex = floor(minheap.peek()).toInt()
+            val lookAheadPoint = path[aheadIndex] + (path[aheadIndex+1] - path[aheadIndex]) * (fractionalIndex - aheadIndex)
+            val waypoint = Waypoint(lookAheadPoint.x, lookAheadPoint.y, closest.heading, closest.followDistance, closest.hook)
+            if (fractionalIndex < lastFracdex) op.telemetry.addLine("Look Ahead Bad Routing to Closest")
+            lastFracdex = fractionalIndex
+            return PureController(rloc, if (fractionalIndex < lastFracdex) closest else waypoint, true, if (closest is SpeedPoint) closest.speed else 1.0)
+        } else {
+            op.telemetry.addLine("Look ahead not found routing to le monke")
+            return PureController(rloc, if (index == path.size - 1) path[index] else path[index+1], true, 1.0)
+        }
     }
 
     fun closestWaypoint(rloc: Pose2D) {

@@ -6,9 +6,8 @@ import org.apache.commons.math3.linear.LUDecomposition
 import org.apache.commons.math3.linear.MatrixUtils
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
-import org.firstinspires.ftc.teamcode.Lib.Util.fuzzyEquals
-import org.firstinspires.ftc.teamcode.Lib.Util.limitAngle2
-import org.firstinspires.ftc.teamcode.Lib.Util.wrap
+import org.firstinspires.ftc.teamcode.Lib.Util.*
+import org.firstinspires.ftc.teamcode.Modules.Meta.Clock
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -17,7 +16,6 @@ import kotlin.math.sin
 
 // offsets = relative to center of robot +x = forward on robot
 abstract class Odom1 constructor(offsets: List<Pose2D>) {
-    private var lastValues = emptyList<Double>()
     private var _poseEstimate = Pose2D()
     var poseEstimate: Pose2D
         get() = _poseEstimate

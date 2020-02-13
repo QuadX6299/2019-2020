@@ -6,6 +6,8 @@ import kotlin.math.*
 // sometimes acts as a vector so uhhh gl!
 
 open class Point(var x: Double, var y: Double) {
+    constructor() : this(0.0,0.0)
+
     infix fun distance(other: Point) : Double {
         val pt = this - other
         return sqrt(pt.x.pow(2.0)+pt.y.pow(2.0))
