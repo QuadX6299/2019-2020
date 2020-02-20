@@ -14,7 +14,7 @@ fun PureController(rloc: Pose2D, target: Waypoint, fast: Boolean, speed: Double)
     if (abs(distance) < 1.0) mp = .1
     val angle = (rloc - target).atan() - rloc.heading
     val relVector = Pose2D(-1 * (distance * cos(angle)), -1 * (distance * sin(angle)), 0.0) * speed
-    val pVector = (relVector as Point) / (if (fast) 10.0 else 30.0)
+    val pVector = (relVector as Point) / (if (fast) 10.0 else 20.0)
     var finalVector = Pose2D(pVector, 0.0)
 
     if (finalVector.magnitude < mp) {

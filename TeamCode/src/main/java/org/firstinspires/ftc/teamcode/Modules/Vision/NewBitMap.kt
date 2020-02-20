@@ -132,11 +132,11 @@ class NewBitMap constructor(val opMode: OpMode) {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 210){
+        if (avgX <= 220){
             return "L"
-        } else if (avgX >= 220 && avgX <=400){
+        } else if (avgX > 220 && avgX <=400){
             return  "C"
-        } else if (avgX >= 460){
+        } else if (avgX > 400){
             return "R"
         }
 
@@ -255,11 +255,11 @@ class NewBitMap constructor(val opMode: OpMode) {
         //BLACK IS TRUE, GOLD IS FALSE
 
 
-        if (avgX <= 70){
+        if (avgX <= 100){
             return "L"
-        } else if (avgX >= 80 && avgX <= 350){
+        } else if (avgX > 100 && avgX <= 350){
             return  "C"
-        } else if (avgX >= 380){
+        } else if (avgX > 350){
             return "R"
         }
         return "C"

@@ -12,11 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class ServoTester extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Servo s = hardwareMap.get(Servo.class, "grabber");
-
-        DcMotorEx yourMotor = hardwareMap.get(DcMotorEx.class, "motor");
-        yourMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        yourMotor.setPIDFCoefficients(yourMotor.getMode(), new PIDFCoefficients(25.0,0.0,20.0,0.0));
+        Servo s = hardwareMap.get(Servo.class, "rotatorLeft");
 
         ElapsedTime pt = new ElapsedTime();
         s.setPosition(0.0);

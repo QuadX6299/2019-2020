@@ -64,10 +64,10 @@ fun Pose2D.toPowers() : List<Double> {
     val min : Double = min(min(fl,fr), min(bl,br))
     val absMax = max(max, -min)
     if (absMax > 1) {
-        fl /= max
-        bl /= max
-        fr /= max
-        br /= max
+        fl /= absMax
+        bl /= absMax
+        fr /= absMax
+        br /= absMax
     }
 
     return listOf(

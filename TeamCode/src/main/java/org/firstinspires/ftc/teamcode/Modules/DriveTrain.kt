@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules
 
+import android.provider.SyncStateContract.Helpers.update
 import com.qualcomm.hardware.motors.GoBILDA5202Series
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom1
+import org.firstinspires.ftc.teamcode.Lib.Odometry.Odom2
 import org.firstinspires.ftc.teamcode.Lib.Path.Follower
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
 import org.firstinspires.ftc.teamcode.Lib.Util.d2r
@@ -37,13 +39,11 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
 
     companion object Constants {
         const val odomRadius = 1.0
-        const val odomRatio = 1.0
         const val odomTpr = 8192
         const val wheelRadius = 2.0
         const val gearRatio = 1.0
-        const val dtWidth = 18.0
         // Left Right Center
-        val offsets: List<Pose2D> = listOf(Pose2D(-6.188,1.748, 0.0), Pose2D(-6.188, -1.748, 0.0), Pose2D(.006, .033, PI/2.0))
+        val offsets: List<Pose2D> = listOf(Pose2D(-6.189,1.748, 0.0), Pose2D(-6.188, -1.748, 0.0), Pose2D(.006, .033, PI/2.0))
     }
 
     init {
@@ -58,7 +58,7 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
         all.forEach {
             it.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         }
-
+        poseEstimate = Pose2D(0.0,0.0,0.0)
 
     }
 
@@ -78,7 +78,6 @@ class DriveTrain constructor(opMode: OpMode) : Odom1(offsets) {
     override fun getWheelPositions(): List<Double> {
         // fl bl br fr
         val bulkData: RevBulkData = hubR.bulkInputData
-                ?: return listOf(0.0, 0.0, 0.0, 0.0)
 
         val wheelPositions: MutableList<Double> = mutableListOf()
 

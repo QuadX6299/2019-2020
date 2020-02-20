@@ -18,6 +18,11 @@ class FoundationHooks constructor(Op : OpMode) {
         HookRight.position = 0.52
     }
 
+    fun hook() {
+        HookLeft.position = .5
+        HookRight.position = .52
+    }
+
     fun down() {
         down = true
         origin()

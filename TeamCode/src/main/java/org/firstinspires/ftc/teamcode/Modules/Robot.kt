@@ -137,6 +137,6 @@ class Robot constructor(val opMode: OpMode) {
 
     fun follow(follower: Follower) {
         driveTrain.update()
-        driveTrain.setPower(follower.update(driveTrain.internalUpdate()))
+        driveTrain.setPower(follower.update(driveTrain.poseEstimate))
     }
 }

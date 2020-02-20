@@ -4,10 +4,8 @@ import android.media.tv.TvRecordingClient
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint
 import org.firstinspires.ftc.teamcode.Lib.Structs.Point
 import org.firstinspires.ftc.teamcode.Lib.Structs.Pose2D
-import org.firstinspires.ftc.teamcode.Lib.Util.dot
-import org.firstinspires.ftc.teamcode.Lib.Util.minus
-import org.firstinspires.ftc.teamcode.Lib.Util.plus
-import org.firstinspires.ftc.teamcode.Lib.Util.times
+import org.firstinspires.ftc.teamcode.Lib.Util.*
+import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -33,5 +31,12 @@ fun lookAhead(rloc: Point, closest : Point, next: Point, follow: Double) : Pair<
             two = t1
         }
         return Pair(one,two)
+    }
+}
+
+fun List<Waypoint>.toRed() {
+    this.forEach {
+        it.y *= -1
+        it.heading = (it.heading + PI).limitAngle2()
     }
 }

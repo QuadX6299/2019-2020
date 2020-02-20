@@ -14,16 +14,15 @@ class AutoGrabberLeft constructor(Op: OpMode) {
 
     fun store() {
         grabberLeft.position = 1.0
-        rotatorLeft.position = 1.0
+        rotatorLeft.position = .76
     }
 
     fun clamp() {
-        rotatorLeft.position = 1.0
-        grabberLeft.position = .48
+        grabberLeft.position = .49
     }
 
     fun rotatorDown() {
-        rotatorLeft.position = 0.0
+        rotatorLeft.position = 0.39
         grabberLeft.position = 0.0
     }
 
@@ -36,7 +35,7 @@ class AutoGrabberLeft constructor(Op: OpMode) {
     }
 
     fun hold() {
-        rotatorLeft.position = .57
+        rotatorLeft.position = .59
     }
 
 }

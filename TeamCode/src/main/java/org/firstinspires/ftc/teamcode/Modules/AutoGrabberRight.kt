@@ -22,16 +22,20 @@ class AutoGrabberRight constructor(Op: OpMode) {
     }
 
     fun rotatorDown() {
-        rotatorRight.position = .73
-        grabberRight.position = .46
+        rotatorRight.position = .75
+        grabberRight.position = .69
     }
 
     fun dropBlock() {
-        rotatorRight.position = 0.46
+        grabberRight.position = 0.7
     }
 
     fun hold() {
-        rotatorRight.position = .59
+        rotatorRight.position = .45
+    }
+
+    fun tilt() {
+        rotatorRight.position = .6
     }
 
 }

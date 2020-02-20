@@ -23,9 +23,6 @@ class Gantry constructor(Op : OpMode) {
     fun origin() {
         gantryIn()
         Handler(Looper.getMainLooper()).postDelayed({
-            frontClampOpen()
-        }, 700)
-        Handler(Looper.getMainLooper()).postDelayed({
             backClampClose()
         }, 700)
     }
@@ -79,7 +76,7 @@ class Gantry constructor(Op : OpMode) {
     }
 
     fun gantryOut() {
-        gantry.position = .25
+        gantry.position = .235
     }
 
     fun gantryIn() {
