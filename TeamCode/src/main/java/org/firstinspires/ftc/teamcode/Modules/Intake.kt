@@ -11,48 +11,27 @@ class Intake constructor(op : OpMode) {
     lateinit var intakeMotorLeft : ExpansionHubMotor
     lateinit var intakeMotorRight : ExpansionHubMotor
 
+    lateinit var transition : ExpansionHubMotor
+
     init {
         intakeMotorLeft = op.hardwareMap.get(ExpansionHubMotor::class.java, "il")
         intakeMotorRight = op.hardwareMap.get(ExpansionHubMotor::class.java, "ir")
+        transition = op.hardwareMap.get(ExpansionHubMotor::class.java, "transition")
         intakeMotorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         intakeMotorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         intakeMotorLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
         intakeMotorRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
     }
 
-    fun powerTime(power : Double, timeout: Double){
-        val time = ElapsedTime()
-
-        time.reset()
-
-        while (time.milliseconds() < timeout) {
-            intakeMotorLeft.power = power
-            intakeMotorRight.power = -power
-        }
-    }
-
-    fun unfold() {
-        power(-1.0)
-        Handler(Looper.getMainLooper()).postDelayed({
-            power(1.0)
-            Handler(Looper.getMainLooper()).postDelayed({
-                stopIntake()
-            }, 500)
-        }, 1000)
 
 
-    }
 
-    fun powerAsync(power: Double, time: Long) {
-        power(power)
-        Handler(Looper.getMainLooper()).postDelayed({
-            stopIntake()
-        }, time)
-    }
 
-    fun power (power: Double){
-        intakeMotorLeft.power = power
-        intakeMotorRight.power = -power
+
+    fun power (power: Float){
+        intakeMotorLeft.power = power.toDouble()
+        intakeMotorRight.power = power.toDouble()
+        transition.power = (-power).toDouble()
     }
 
 

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Lib.Marker.Waypoint;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Config
 @Autonomous (name = "Para Devanshi Pt9", group = "Autonomous")
+@Disabled
 public class ParaDevanshi extends LinearOpMode {
     public static double x = 20.0;
     public static double y = 20.0;
